@@ -491,7 +491,7 @@ void wl_module_send(uint8_t * value, uint8_t len)
 // Sends a data package to the default address. Be sure to send the correct
 // amount of bytes as configured as payload on the receiver.
 {
-   lcd_putc('b');
+   //lcd_putc('b');
    lcd_puthex(PTX);
  // return;
    PTX=0;
@@ -501,23 +501,23 @@ void wl_module_send(uint8_t * value, uint8_t len)
     }
     
    // Wait until last paket is send
-   lcd_putc('A');
+   //lcd_putc('A');
     wl_module_CE_lo;
 
     PTX = 1;                        // Set to transmitter mode
     TX_POWERUP;                     // Power up
     
     wl_module_CSN_lo;                    // Pull down chip select
-   lcd_putc('B');
+   //lcd_putc('B');
     spi_fast_shift( FLUSH_TX );     // Write cmd to flush tx fifo
-   lcd_putc('C');
+   //lcd_putc('C');
     wl_module_CSN_hi;                    // Pull up chip select
-    lcd_putc('D');
+    //lcd_putc('D');
     wl_module_CSN_lo;                    // Pull down chip select
     spi_fast_shift( W_TX_PAYLOAD ); // Write cmd to write payload
-   lcd_putc('E');
+   //lcd_putc('E');
     spi_transmit_sync(value,len);   // Write payload
-   lcd_putc('F');
+   //lcd_putc('F');
     wl_module_CSN_hi;                    // Pull up chip select
     
     wl_module_CE_hi;                     // Start transmission

@@ -70,6 +70,8 @@ volatile uint16_t tscounter =0;
 
 extern volatile uint8_t isrcontrol;
 
+volatile uint8_t wl_status=0;
+
 volatile uint8_t do_output=0;
 //static volatile uint8_t testbuffer[USB_DATENBREITE]={};
 
@@ -1721,14 +1723,14 @@ int main (void)
          lcd_gotoxy(0,3);
          wl_module_send(payload,wl_module_PAYLOAD);
          maincounter++;
-         lcd_gotoxy(10,2);
+         lcd_gotoxy(0,2);
          lcd_puthex(maincounter);
          if (maincounter >250)
          
          {
             maincounter = 0;
          }
-         lcd_putc(' ');
+         lcd_putc('i');
          lcd_puthex(wl_isr_counter);
          // end WL
           
@@ -1737,14 +1739,35 @@ int main (void)
          
          // Read wl_module status
          wl_module_CSN_lo;
+         _delay_us(20);
          lcd_putc(' ');
          // Pull down chip select
          status = spi_fast_shift(NOP);// Read status register
          lcd_putc(' ');
-         
+         _delay_us(20);
          wl_module_CSN_hi;                               // Pull up chip select
-         lcd_gotoxy(16,2);
+         lcd_gotoxy(14,2);
          lcd_puthex(status);
+         
+         lcd_gotoxy(0,2);
+        // lcd_puts("          ");
+         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+         {
+            lcd_gotoxy(0,2);
+            lcd_puts("RX");
+            wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            PTX=0;
+         }
+         
+         if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
+         {
+            lcd_gotoxy(3,2);
+            lcd_puts("TX");
+            wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+            PTX=0;
+         }
+
+         
          if (status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
          {
             lcd_gotoxy(18,2);
@@ -1753,7 +1776,7 @@ int main (void)
 
             wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
             wl_module_CE_hi;								// Start transmission
-            _delay_us(10);
+            _delay_us(50);
             wl_module_CE_lo;
             
          }
@@ -1763,25 +1786,85 @@ int main (void)
             lcd_putc('Y');
          }
          
+         
+         // Lesen
+/*
+          wl_module_rx_config();
+         
+         _delay_ms(10);
+         // Read wl_module status
+         wl_module_CSN_lo;                      // Pull down chip select
+         _delay_us(10);
+         wl_status = spi_fast_shift(NOP);       // Read status register
+         _delay_us(10);
+         wl_module_CSN_hi;                               // Pull up chip select
+         
+         
+         lcd_gotoxy(0,1);
+         lcd_puthex(wl_status & (1<<RX_DR));
+         lcd_puthex(wl_status & (1<<TX_DS));
+         lcd_puthex(wl_status & (1<<MAX_RT));
+         lcd_puthex(wl_status & (1<<TX_FULL));
+         
+         lcd_gotoxy(0,1);
+         //lcd_puts("          ");
+         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+         {
+            lcd_gotoxy(0,1);
+            
+            lcd_puts("RX");
+            wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            PTX=0;
+         }
+         
+         if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
+         {
+            lcd_gotoxy(3,1);
+            
+            lcd_puts("TX");
+            wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+            PTX=0;
+         }
+         
+         if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
+         {
+            lcd_gotoxy(6,1);
+            
+            lcd_puts("RT");
+            
+            wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
+            wl_module_CE_hi;
+            _delay_us(10);
+            wl_module_CE_lo;
+         }
+
+   */
          /*
          uint8_t rec = wl_module_get_rx_pw(0);
-         lcd_gotoxy(0,1);
+         lcd_gotoxy(0,3);
          lcd_puthex(rec);
-         
+         lcd_putc(' ');
          uint8_t data[16] = {};
          uint8_t readstatus = wl_module_get_data((void*)&data);
+         lcd_puthex(readstatus);
+         
          uint8_t i;
          lcd_putc(' ');
          lcd_putint1(data[0]);
          lcd_putc('.');
-         for (i=2; i<9; i++)
+         for (i=2; i<4; i++)
          {
             lcd_putint1(data[i]);
          }
          lcd_putc(' ');
          lcd_puthex(data[9]);
-          */
          
+          // end lesen
+         //lcd_putc('a');
+         */
+         wl_module_tx_config(0);
+         
+
          if (usbstatus & (1<<WRITEAUTO))
          {
             uint8_t usberfolg = usb_rawhid_send((void*)sendbuffer, 50);
