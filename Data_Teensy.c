@@ -1385,7 +1385,6 @@ int main (void)
    
    wl_module_init();
    _delay_ms(50);
-   
    wl_module_tx_config(wl_module_TX_NR_0);
    
    
@@ -1767,7 +1766,6 @@ int main (void)
             PTX=0;
          }
 
-         
          if (status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
          {
             lcd_gotoxy(18,2);
