@@ -10,7 +10,6 @@
 #define OSZIPORT           PORTD
 #define OSZIPORTDDR        DDRD
 #define OSZIPORTPIN        PIND
-#define OSZI_PULS_A        0
 #define PULSA              4
 //#define PULSB              5
 //#define OSZI_PULS_B        5

@@ -73,9 +73,9 @@ void wl_module_init()
    INTERRUPT_DDR &= ~(1<<INT0_PIN);
    
    
-   EICRA = ((1<<ISC11)|(0<<ISC10)|(1<<ISC01)|(0<<ISC00));
+   EICRA = ((1<<ISC01));
    // Set external interupt on falling edge for INT0 and INT1
-   EIMSK  = ((0<<INT1)|(1<<INT0));							
+   EIMSK  = ((1<<INT0));							
 
 #endif // __AVR_ATmega32U4__
    

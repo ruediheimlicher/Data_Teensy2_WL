@@ -70,8 +70,6 @@ volatile uint16_t tscounter =0;
 
 extern volatile uint8_t isrcontrol;
 
-volatile uint8_t wl_status=0;
-
 volatile uint8_t do_output=0;
 //static volatile uint8_t testbuffer[USB_DATENBREITE]={};
 
@@ -106,7 +104,8 @@ void delay_ms(unsigned int ms);
 
 //volatile uint8_t payload[wl_module_PAYLOAD];
 
-
+// WL def
+//volatile uint8_t wl_spi_status;
 
 
 volatile uint8_t                    in_taskcounter=0;
@@ -213,6 +212,17 @@ volatile uint8_t anzahlpakete=0;
 //volatile uint8_t usb_readcount = 0;
 
 volatile uint8_t  eeprom_indata=0;
+
+#pragma mark WL def
+//Variablen WL
+// MARK: WL Defs
+volatile uint8_t wl_status=0;
+//volatile uint8_t PTX=0;
+volatile uint8_t int0counter=0;
+volatile uint8_t wl_spi_status=0;
+char itoabuffer[20] = {};
+volatile uint8_t wl_data[wl_module_PAYLOAD] = {};
+
 
 
 #pragma mark mmc def
@@ -838,6 +848,8 @@ ISR(INT0_vect) // Interrupt bei CS, falling edge
 {
       OSZIA_LO;
    inindex=0;
+   wl_spi_status |= (1<<7);
+
    wl_isr_counter++;
   /*
    uint8_t status;
@@ -1387,7 +1399,8 @@ int main (void)
    _delay_ms(50);
    wl_module_tx_config(wl_module_TX_NR_0);
    
-   
+   uint8_t readstatus = wl_module_get_data((void*)&wl_data);
+
    // MARK:  while
    sei();
    while (1)
@@ -1396,7 +1409,90 @@ int main (void)
       //Blinkanzeige
       loopcount0+=1;
       
+      // ********
       
+      if (wl_spi_status & (1<<7)) // in ISR gesetzt
+      {
+        
+         if (int0counter < 0x2F)
+         {
+            int0counter++;
+         }
+         else
+         {
+            int0counter=0;
+         }
+         
+         wl_spi_status &= ~(1<<7);
+         
+         lcd_gotoxy(14,1);
+         lcd_puthex(int0counter);
+         lcd_gotoxy(18,1);
+         wl_status = wl_module_get_status();
+         lcd_puthex(wl_status);
+         
+          /*
+         // MARK: WL Loop
+         
+         
+         
+         lcd_gotoxy(0,0);
+         lcd_puts("          ");
+         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+         {
+            OSZIA_LO;
+            lcd_gotoxy(0,0);
+            lcd_puts("RX");
+            uint8_t rec = wl_module_get_rx_pw(0);
+            lcd_gotoxy(0,3);
+            lcd_puthex(rec);
+            lcd_putc(' ');
+            uint8_t readstatus = wl_module_get_data((void*)&wl_data);
+            uint8_t i;
+            lcd_puthex(readstatus);
+            lcd_putc(' ');
+            lcd_putint1(wl_data[0]);
+            lcd_putc('.');
+            for (i=2; i<5; i++)
+            {
+               lcd_putint1(wl_data[i]);
+            }
+            lcd_putc(' ');
+            lcd_puthex(wl_data[9]);
+            OSZIA_HI;
+            
+            
+            
+            wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            PTX=0;
+         }
+         
+         if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
+         {
+            OSZIA_LO;
+            lcd_gotoxy(3,0);
+            lcd_puts("TX");
+            wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+            PTX=0;
+            OSZIA_HI;
+         }
+         
+         if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
+         {
+            lcd_gotoxy(6,0);
+            lcd_puts("RT");
+            
+            wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
+            wl_module_CE_hi;
+            _delay_us(10);
+            wl_module_CE_lo;
+         }
+         
+        */
+  
+         wl_spi_status = 0;
+      } // end ISR abarbeiten
+            // ********
       /* **** spi_buffer abfragen **************** */
       // MARK:  spi_rxdata
       
@@ -1689,7 +1785,7 @@ int main (void)
          LOOPLEDPORT ^=(1<<LOOPLED);
          
 
- // MARK: WL Loop
+ // MARK: WL write
          
          // WL
          uint8_t k;
@@ -1722,13 +1818,14 @@ int main (void)
          lcd_gotoxy(0,3);
          wl_module_send(payload,wl_module_PAYLOAD);
          maincounter++;
-         lcd_gotoxy(0,2);
+         lcd_gotoxy(10,2);
          lcd_puthex(maincounter);
          if (maincounter >250)
          
          {
             maincounter = 0;
          }
+         lcd_putc(' ');
          lcd_putc('i');
          lcd_puthex(wl_isr_counter);
          // end WL
@@ -1749,7 +1846,7 @@ int main (void)
          lcd_puthex(status);
          
          lcd_gotoxy(0,2);
-        // lcd_puts("          ");
+         lcd_puts("          ");
          if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
          {
             lcd_gotoxy(0,2);
