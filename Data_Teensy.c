@@ -1824,10 +1824,13 @@ int main (void)
          wl_module_CE_hi;
          */
          
-         lcd_gotoxy(0,3);
+         wl_module_tx_config(wl_module_TX_NR_0);
+         lcd_gotoxy(0,2);
+         lcd_putc('a');
          wl_module_send(payload,wl_module_PAYLOAD);
          maincounter++;
          lcd_gotoxy(10,2);
+         lcd_putc('a');
          lcd_puthex(maincounter);
          if (maincounter >250)
          
@@ -1843,22 +1846,27 @@ int main (void)
          uint8_t status;
          
          // Read wl_module status
+         
+         /*
          wl_module_CSN_lo;
          _delay_us(20);
          lcd_putc(' ');
          // Pull down chip select
-         status = spi_fast_shift(NOP);// Read status register
-         lcd_putc(' ');
+         wl_status = spi_fast_shift(NOP);// Read status register
+         
          _delay_us(20);
          wl_module_CSN_hi;                               // Pull up chip select
+        */
+         wl_status = wl_module_get_status();
          lcd_gotoxy(14,2);
-         lcd_puthex(status);
+         lcd_putc('s');
+         lcd_puthex(wl_status);
          
-         lcd_gotoxy(0,2);
+         lcd_gotoxy(0,1);
          lcd_puts("          ");
-         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+         if (wl_status & (1<<RX_DR)) // IRQ: Package has been received
          {
-            lcd_gotoxy(0,2);
+            lcd_gotoxy(0,1);
             lcd_puts("RX");
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
             PTX=0;
@@ -1866,7 +1874,7 @@ int main (void)
          
          if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
          {
-            lcd_gotoxy(3,2);
+            lcd_gotoxy(3,1);
             lcd_puts("TX");
             wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
             PTX=0;
@@ -1874,7 +1882,7 @@ int main (void)
 
          if (status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
          {
-            lcd_gotoxy(18,2);
+            lcd_gotoxy(18,1);
             lcd_putc('X');
             
 
@@ -1887,7 +1895,7 @@ int main (void)
          if (status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
          {
             lcd_gotoxy(18,3);
-            lcd_putc('Y');
+            lcd_putc('F');
          }
          
          
