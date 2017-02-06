@@ -45,44 +45,53 @@ void wl_module_init()
 // Initializes pins and interrupt to communicate with the wl_module
 // Should be called in the early initializing phase at startup.
 {
-    // Define CSN and CE as Output and set them to default
-    SPI_WL_DDR |= ((1<<SPI_WL_CSN)|(1<<SPI_WL_CE));
-    wl_module_CE_lo;
-    wl_module_CSN_hi;
-
+   
+   // Define CSN and CE as Output and set them to default
+   SPI_WL_DDR |= (1<<SPI_WL_CSN);
+   //return;
+   
+   SPI_WL_DDR |= (1<<SPI_WL_CE);
+   
+   //return;
+   
+   
+   wl_module_CE_lo;
+   wl_module_CSN_hi;
+   
 #if defined(__AVR_ATmega8__)
-    // Initialize external interrupt 0 (PD2)
-    MCUCR = ((1<<ISC11)|(0<<ISC10)|(1<<ISC01)|(0<<ISC00));	// Set external interupt on falling edge
-    GICR  = ((0<<INT1)|(1<<INT0));							// Activate INT0
+   // Initialize external interrupt 0 (PD2)
+   MCUCR = ((1<<ISC11)|(0<<ISC10)|(1<<ISC01)|(0<<ISC00));	// Set external interupt on falling edge
+   GICR  = ((0<<INT1)|(1<<INT0));							// Activate INT0
 #endif // __AVR_ATmega8__
-
+   
 #if defined(__AVR_ATmega88A__)
-	EICRA = ((1<<ISC11)|(0<<ISC10)|(1<<ISC01)|(0<<ISC00));	// Set external interupt on falling edge for INT0 and INT1
-	EIMSK  = ((0<<INT1)|(1<<INT0));							// Activate INT0
+   EICRA = ((1<<ISC11)|(0<<ISC10)|(1<<ISC01)|(0<<ISC00));	// Set external interupt on falling edge for INT0 and INT1
+   EIMSK  = ((0<<INT1)|(1<<INT0));							// Activate INT0
 #endif // __AVR_ATmega88A__
-
+   
 #if defined(__AVR_ATmega168__)
-    // Initialize external interrupt on port PD6 (PCINT22)
-    DDRB &= ~(1<<PD6);
-    PCMSK2 = (1<<PCINT22);
-    PCICR  = (1<<PCIE2);
+   // Initialize external interrupt on port PD6 (PCINT22)
+   DDRB &= ~(1<<PD6);
+   PCMSK2 = (1<<PCINT22);
+   PCICR  = (1<<PCIE2);
 #endif // __AVR_ATmega168__
    
 #if defined(__AVR_ATmega32U4__)
-   // Initialize external interrupt on port PD0 
+   // Initialize external interrupt on port PD0
    INTERRUPT_DDR &= ~(1<<INT0_PIN);
+   INTERRUPT_PORT |= (1<<INT0_PIN);
    
    
    EICRA = ((1<<ISC01));
    // Set external interupt on falling edge for INT0 and INT1
-   EIMSK  = ((1<<INT0));							
-
+   EIMSK  = ((1<<INT0));
+   
 #endif // __AVR_ATmega32U4__
    
    
-
-    // Initialize spi module
-    wl_spi_init();
+   
+   // Initialize spi module
+   wl_spi_init();
 }
 
 

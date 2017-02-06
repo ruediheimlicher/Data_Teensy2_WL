@@ -48,10 +48,11 @@
 #define INT1_PIN        PD1
 
 
-#define SPI_WL_PORT     PORTC
-#define SPI_WL_DDR      DDRC
-#define SPI_WL_CE       PC6
-#define SPI_WL_CSN       PC7
+#define SPI_WL_PORT     PORTD
+#define SPI_WL_DDR      DDRD
+#define SPI_WL_CE       PD2
+#define SPI_WL_CSN      PD3
+
 
 #define SPI_ADC_CE_PORT     PORTC
 #define SPI_ADC_CE_DDR      DDRC

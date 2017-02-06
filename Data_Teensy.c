@@ -510,7 +510,7 @@ void SPI_PORT_Init(void) // SPI-Pins aktivieren
    //SPI_PORT &= ~(1<<SPI_MISO; // HI
    SPI_DDR |= (1<<SPI_MOSI);
    SPI_DDR |= (1<<SPI_CLK);
-   //SPI_PORT &= ~(1<<SPI_SCK; // LO
+   //SPI_PORT &= ~(1<<SPI_CLK); // LO
    SPI_DDR |= (1<<SPI_SS);
    SPI_PORT |= (1<<SPI_SS); // HI
    
@@ -1111,7 +1111,7 @@ int main (void)
    initADC(0);
    
    // ---------------------------------------------------
-   // in attach verschobe, nur wenn USB eingesteckt
+   // in attach verschoben, nur wenn USB eingesteckt
    
    // Initialize the USB, and then wait for the host to set configuration.
    // If the Teensy is powered without a PC connected to the USB port,
@@ -1395,11 +1395,20 @@ int main (void)
    uint8_t maincounter =0;
    //Array for Payload
    
-   wl_module_init();
-   _delay_ms(50);
-   wl_module_tx_config(wl_module_TX_NR_0);
    
-   uint8_t readstatus = wl_module_get_data((void*)&wl_data);
+   wl_module_init();
+   
+   
+   _delay_ms(10);
+   
+  // SPI_WL_DDR |= (1<<SPI_WL_CSN);
+   
+//   SPI_WL_DDR |= (1<<SPI_WL_CE);
+   
+ //  wl_module_tx_config(wl_module_TX_NR_0);
+   
+   
+//   uint8_t readstatus = wl_module_get_data((void*)&wl_data);
 
    // MARK:  while
    sei();
@@ -1428,7 +1437,7 @@ int main (void)
          lcd_gotoxy(14,1);
          lcd_puthex(int0counter);
          lcd_gotoxy(18,1);
-         wl_status = wl_module_get_status();
+//         wl_status = wl_module_get_status();
          lcd_puthex(wl_status);
          
           /*
