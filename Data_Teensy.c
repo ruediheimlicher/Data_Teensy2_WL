@@ -1408,7 +1408,7 @@ int main (void)
  //  wl_module_tx_config(wl_module_TX_NR_0);
    
    
-//   uint8_t readstatus = wl_module_get_data((void*)&wl_data);
+   uint8_t readstatus = wl_module_get_data((void*)&wl_data);
 
    // MARK:  while
    sei();
@@ -1795,6 +1795,7 @@ int main (void)
          
 
  // MARK: WL write
+         wl_module_tx_config(wl_module_TX_NR_0);
          
          // WL
          uint8_t k;
@@ -1827,7 +1828,7 @@ int main (void)
          lcd_gotoxy(0,3);
          wl_module_send(payload,wl_module_PAYLOAD);
          maincounter++;
-         lcd_gotoxy(10,2);
+         lcd_gotoxy(8,2);
          lcd_puthex(maincounter);
          if (maincounter >250)
          
@@ -1847,12 +1848,12 @@ int main (void)
          _delay_us(20);
          lcd_putc(' ');
          // Pull down chip select
-         status = spi_fast_shift(NOP);// Read status register
+         wl_status = spi_fast_shift(NOP);// Read status register
          lcd_putc(' ');
          _delay_us(20);
          wl_module_CSN_hi;                               // Pull up chip select
          lcd_gotoxy(14,2);
-         lcd_puthex(status);
+         lcd_puthex(wl_status);
          
          lcd_gotoxy(0,2);
          lcd_puts("          ");
@@ -1860,7 +1861,28 @@ int main (void)
          {
             lcd_gotoxy(0,2);
             lcd_puts("RX");
+         
+            uint8_t rec = wl_module_get_rx_pw(0);
+            lcd_gotoxy(0,3);
+            lcd_puthex(rec);
+            lcd_putc(' ');
+            uint8_t readstatus = wl_module_get_data((void*)&wl_data);
+            uint8_t i;
+            lcd_puthex(readstatus);
+            lcd_putc(' ');
+            lcd_putint1(wl_data[2]);
+            lcd_putc('.');
+            for (i=4; i<8; i++)
+            {
+               lcd_putint1(wl_data[i]);
+            }
+            lcd_putc(' ');
+            lcd_puthex(wl_data[0]);
+
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            delay_ms(5);
+            wl_module_rx_config();
+
             PTX=0;
          }
          
@@ -1868,11 +1890,20 @@ int main (void)
          {
             lcd_gotoxy(3,2);
             lcd_puts("TX");
+            //delay_ms(5);
+            
             wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+         //   delay_ms(5);
+            
+            wl_module_rx_config();
+
             PTX=0;
          }
 
-         if (status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
+         lcd_gotoxy(18,2);
+         lcd_putc(' ');
+         lcd_putc(' ');
+         if (wl_status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
          {
             lcd_gotoxy(18,2);
             lcd_putc('X');
@@ -1884,16 +1915,16 @@ int main (void)
             wl_module_CE_lo;
             
          }
-         if (status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
+         if (wl_status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
          {
-            lcd_gotoxy(18,3);
+            lcd_gotoxy(19,2);
             lcd_putc('Y');
          }
          
          
          // Lesen
-/*
-          wl_module_rx_config();
+
+         // wl_module_rx_config();
          
          _delay_ms(10);
          // Read wl_module status
@@ -1903,7 +1934,7 @@ int main (void)
          _delay_us(10);
          wl_module_CSN_hi;                               // Pull up chip select
          
-         
+ /*
          lcd_gotoxy(0,1);
          lcd_puthex(wl_status & (1<<RX_DR));
          lcd_puthex(wl_status & (1<<TX_DS));
@@ -1944,6 +1975,8 @@ int main (void)
 
    */
          /*
+         wl_module_rx_config();
+         delay_ms(5);
          uint8_t rec = wl_module_get_rx_pw(0);
          lcd_gotoxy(0,3);
          lcd_puthex(rec);
@@ -1965,9 +1998,9 @@ int main (void)
          
           // end lesen
          //lcd_putc('a');
-         */
-         wl_module_tx_config(0);
-         
+        
+         //wl_module_tx_config(0);
+        */
 
          if (usbstatus & (1<<WRITEAUTO))
          {
