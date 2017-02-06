@@ -1846,25 +1846,21 @@ int main (void)
          uint8_t status;
          
          // Read wl_module status
-         
-         /*
          wl_module_CSN_lo;
          _delay_us(20);
          lcd_putc(' ');
          // Pull down chip select
-         wl_status = spi_fast_shift(NOP);// Read status register
+         status = spi_fast_shift(NOP);// Read status register
          
          _delay_us(20);
          wl_module_CSN_hi;                               // Pull up chip select
-        */
-         wl_status = wl_module_get_status();
          lcd_gotoxy(14,2);
          lcd_putc('s');
-         lcd_puthex(wl_status);
+         lcd_puthex(status);
          
          lcd_gotoxy(0,1);
          lcd_puts("          ");
-         if (wl_status & (1<<RX_DR)) // IRQ: Package has been received
+         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
          {
             lcd_gotoxy(0,1);
             lcd_puts("RX");
@@ -1880,7 +1876,7 @@ int main (void)
             PTX=0;
          }
 
-         if (status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
+         if (wl_status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
          {
             lcd_gotoxy(18,1);
             lcd_putc('X');
@@ -1892,7 +1888,7 @@ int main (void)
             wl_module_CE_lo;
             
          }
-         if (status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
+         if (wl_status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
          {
             lcd_gotoxy(18,3);
             lcd_putc('F');
