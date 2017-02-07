@@ -1827,7 +1827,7 @@ int main (void)
          
          lcd_gotoxy(0,3);
          wl_module_send(payload,wl_module_PAYLOAD);
-         maincounter++;
+        
          lcd_gotoxy(8,2);
          lcd_puthex(maincounter);
          if (maincounter >250)
@@ -1882,7 +1882,7 @@ int main (void)
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
             delay_ms(5);
             wl_module_rx_config();
-
+            maincounter++;
             PTX=0;
          }
          
