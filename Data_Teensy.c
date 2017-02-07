@@ -42,6 +42,8 @@
 
 #include "wireless.c"
 #include "nRF24L01.h"
+#include "mirf.c"
+
 
 // USB
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
