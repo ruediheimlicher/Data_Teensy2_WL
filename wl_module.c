@@ -530,7 +530,7 @@ void wl_module_send(uint8_t * value, uint8_t len)
     wl_module_CSN_hi;                    // Pull up chip select
     
     wl_module_CE_hi;                     // Start transmission
-	_delay_us(10);						// Grünes Modul funktioniert nicht mit 10µs delay
+	_delay_us(15);						// Grünes Modul funktioniert nicht mit 10µs delay
 	wl_module_CE_lo;
    lcd_putc('Z');
 }
