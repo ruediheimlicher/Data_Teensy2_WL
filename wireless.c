@@ -64,7 +64,7 @@ void spi_transfer_sync (uint8_t * dataout, uint8_t * datain, uint8_t len)
    }
 }
 void spi_transmit_sync (uint8_t * dataout, uint8_t len)
-// Shift full array to target device without receiving any byt e
+// Shift full array to target device without receiving any byte
 {
    uint8_t i;
    for (i = 0; i < len; i++)

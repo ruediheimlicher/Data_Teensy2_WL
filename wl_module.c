@@ -38,6 +38,7 @@
 #define RX_POWERUP wl_module_config_register(CONFIG, wl_module_CONFIG | ( (1<<PWR_UP) | (1<<PRIM_RX) ) )
 
 
+
 // Flag which denotes transmitting mode
 volatile uint8_t PTX=0;
 
@@ -91,7 +92,7 @@ void wl_module_init()
    
    
    // Initialize spi module
-   wl_spi_init();
+ //  wl_spi_init();
 }
 
 
@@ -500,19 +501,20 @@ void wl_module_send(uint8_t * value, uint8_t len)
 // Sends a data package to the default address. Be sure to send the correct
 // amount of bytes as configured as payload on the receiver.
 {
+   OSZIA_LO;
    //lcd_putc('b');
-   lcd_puthex(PTX);
+   //lcd_puthex(len);
  // return;
-   PTX=0;
+  // PTX=0;
     while (PTX)
     {
-       //lcd_putc('x');
+       lcd_putc('x');
     }
     
    // Wait until last paket is send
    //lcd_putc('A');
     wl_module_CE_lo;
-
+   //lcd_putc('c');
     PTX = 1;                        // Set to transmitter mode
     TX_POWERUP;                     // Power up
     
@@ -530,7 +532,8 @@ void wl_module_send(uint8_t * value, uint8_t len)
     wl_module_CSN_hi;                    // Pull up chip select
     
     wl_module_CE_hi;                     // Start transmission
-	_delay_us(15);						// Grünes Modul funktioniert nicht mit 10µs delay
+	_delay_us(30);						// Grünes Modul funktioniert nicht mit 10µs delay
 	wl_module_CE_lo;
 //   lcd_putc('Z');
+   OSZIA_HI;
 }

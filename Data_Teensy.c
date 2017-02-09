@@ -1405,6 +1405,8 @@ int main (void)
    
    
    uint8_t readstatus = wl_module_get_data((void*)&wl_data);
+   
+   
 
    // MARK:  while
    sei();
@@ -1444,6 +1446,8 @@ int main (void)
          // MARK: WL Loop
          
          
+         lcd_gotoxy(0,1);
+         lcd_puts("AA");
          
          lcd_gotoxy(0,0);
          //lcd_puts("          ");
@@ -1498,9 +1502,8 @@ int main (void)
             wl_module_CE_lo;
          }
          
-        
-  
-         wl_spi_status = 0;
+
+     //    wl_spi_status = 0;
       } // end ISR abarbeiten
       
       // ********
@@ -1796,7 +1799,7 @@ int main (void)
          loopcount0=0;
          loopcount1+=1;
          LOOPLEDPORT ^=(1<<LOOPLED);
-         
+   //      continue;
          
          // MARK: WL write
          wl_module_tx_config(wl_module_TX_NR_0);
@@ -1828,10 +1831,13 @@ int main (void)
           _delay_ms(5);
           wl_module_CE_hi;
           */
-         
-         //lcd_gotoxy(0,3);
+         lcd_gotoxy(2,3);
+         lcd_puts("  ");
         _delay_ms(1);
+         lcd_gotoxy(2,3);
+         lcd_putc('a');
          wl_module_send(payload,wl_module_PAYLOAD);
+         lcd_putc('z');
          // maincounter++;
          lcd_gotoxy(8,2);
          lcd_puthex(maincounter);
