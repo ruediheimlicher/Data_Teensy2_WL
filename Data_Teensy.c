@@ -1430,10 +1430,14 @@ int main (void)
          
          wl_spi_status &= ~(1<<7);
          
-         lcd_gotoxy(14,1);
+         lcd_gotoxy(10,1);
          lcd_puthex(int0counter);
+         lcd_putc(' ');
+         lcd_puthex(wl_isr_counter);
+         
          lcd_gotoxy(18,1);
-//         wl_status = wl_module_get_status();
+         wl_status = wl_module_get_status();
+         
          lcd_puthex(wl_status);
          
          
@@ -1442,12 +1446,13 @@ int main (void)
          
          
          lcd_gotoxy(0,0);
-         lcd_puts("          ");
+         //lcd_puts("          ");
          if (wl_status & (1<<RX_DR)) // IRQ: Package has been received
          {
             OSZIA_LO;
-            lcd_gotoxy(0,0);
+            lcd_gotoxy(0,1);
             lcd_puts("RX");
+            /*
             uint8_t rec = wl_module_get_rx_pw(0);
             lcd_gotoxy(0,3);
             lcd_puthex(rec);
@@ -1466,7 +1471,7 @@ int main (void)
             lcd_puthex(wl_data[9]);
             OSZIA_HI;
             
-            
+            */
             
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
             PTX=0;
@@ -1475,7 +1480,7 @@ int main (void)
          if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
          {
             OSZIA_LO;
-            lcd_gotoxy(3,0);
+            lcd_gotoxy(3,1);
             lcd_puts("TX");
             wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
             PTX=0;
@@ -1484,12 +1489,12 @@ int main (void)
          
          if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
          {
-            lcd_gotoxy(6,0);
+            lcd_gotoxy(6,1);
             lcd_puts("RT");
             
             wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
             wl_module_CE_hi;
-            _delay_us(10);
+            _delay_us(15);
             wl_module_CE_lo;
          }
          
@@ -1825,6 +1830,7 @@ int main (void)
           */
          
          //lcd_gotoxy(0,3);
+        _delay_ms(1);
          wl_module_send(payload,wl_module_PAYLOAD);
          // maincounter++;
          lcd_gotoxy(8,2);
