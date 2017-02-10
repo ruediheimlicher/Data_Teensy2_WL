@@ -153,6 +153,9 @@
 // ADC
 #define  ADCLO             16
 #define  ADCHI             17
+// ADC 2
+#define  ADC2LO             18
+#define  ADC2HI             19
 
 // USB Ausgang
 #define SERVOALO           10

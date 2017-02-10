@@ -883,7 +883,7 @@ ISR(INT0_vect) // Interrupt bei CS, falling edge
    }
    */
    //SPDR = 0;// Erstes Byte an Slave
-      OSZIA_HI;
+      //OSZIA_HI;
    
    //  spi_txbuffer[0]++;
    //  spi_txbuffer[2]--;
@@ -1432,15 +1432,17 @@ int main (void)
          
          wl_spi_status &= ~(1<<7);
          
+         /*
          lcd_gotoxy(10,1);
          lcd_puthex(int0counter);
          lcd_putc(' ');
          lcd_puthex(wl_isr_counter);
          
          lcd_gotoxy(18,1);
+          */
          wl_status = wl_module_get_status();
          
-         lcd_puthex(wl_status);
+         //lcd_puthex(wl_status);
          
          
          // MARK: WL Loop
@@ -1453,19 +1455,20 @@ int main (void)
          //lcd_puts("          ");
          if (wl_status & (1<<RX_DR)) // IRQ: Package has been received
          {
-            OSZIA_LO;
+            OSZIA_LO; // 130ms mit Anzeige
             lcd_gotoxy(0,2);
             lcd_puts("RX");
             
             
             uint8_t rec = wl_module_get_rx_pw(0);
-            lcd_gotoxy(0,3);
+            //lcd_gotoxy(0,3);
             //lcd_puthex(rec);
             //lcd_putc(' ');
             uint8_t readstatus = wl_module_get_data((void*)&wl_data);
             uint8_t i;
             //lcd_puthex(readstatus);
             //lcd_putc(' ');
+            lcd_gotoxy(0,3);
             lcd_putint1(wl_data[2]);
             lcd_putc('.');
             for (i=4; i<7; i++)
@@ -1480,6 +1483,9 @@ int main (void)
             //lcd_puthex(wl_data[10]);
           //  lcd_putc(' ');
           //  lcd_puthex(wl_data[11]);
+
+            sendbuffer[ADC2LO]= wl_data[10];
+            sendbuffer[ADC2HI]= wl_data[11];
 
             
             uint16_t temperatur = (wl_data[11]<<8);
@@ -1676,6 +1682,8 @@ int main (void)
          sendbuffer[ADCLO]= (adcwert & 0x00FF);
          sendbuffer[ADCHI]= ((adcwert & 0xFF00)>>8);
          
+         
+         
          //zaehler laden
          sendbuffer[DATACOUNT_LO] = (messungcounter & 0x00FF);
          sendbuffer[DATACOUNT_HI] = ((messungcounter & 0xFF00)>>8);
@@ -1822,8 +1830,10 @@ int main (void)
          payload[7] = 2;
          payload[8] = 6;
          payload[9] = maincounter;
-         payload[10] = sendbuffer[ADCLO];
-         payload[11] = sendbuffer[ADCHI];
+  //       payload[10] = sendbuffer[ADCLO];
+  //       payload[11] = sendbuffer[ADCHI];
+         payload[10] = adcwert & 0x00FF;
+         payload[11] = (adcwert & 0xFF00)>>8;
          
          /*
           wl_module_CE_lo;
