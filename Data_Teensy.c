@@ -1845,6 +1845,10 @@ int main (void)
          uint8_t status;
          
          // Read wl_module status
+         
+         wl_status = wl_module_get_status();
+         
+         /*
          wl_module_CSN_lo;
          _delay_us(20);
          lcd_putc(' ');
@@ -1853,6 +1857,7 @@ int main (void)
          lcd_putc(' ');
          _delay_us(20);
          wl_module_CSN_hi;                               // Pull up chip select
+          */
          lcd_gotoxy(14,2);
          lcd_puthex(wl_status);
          
@@ -1914,7 +1919,7 @@ int main (void)
          
          // Lesen
          
-         wl_module_rx_config();
+        // wl_module_rx_config();
          
          /*
          _delay_ms(10);
