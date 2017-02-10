@@ -1916,6 +1916,7 @@ int main (void)
          
          wl_module_rx_config();
          
+         /*
          _delay_ms(10);
          // Read wl_module status
          wl_module_CSN_lo;                      // Pull down chip select
@@ -1923,7 +1924,7 @@ int main (void)
          wl_status = spi_fast_shift(NOP);       // Read status register
          _delay_us(10);
          wl_module_CSN_hi;                               // Pull up chip select
-         
+         */
          /*
           lcd_gotoxy(0,1);
           lcd_puthex(wl_status & (1<<RX_DR));
@@ -1931,6 +1932,7 @@ int main (void)
           lcd_puthex(wl_status & (1<<MAX_RT));
           lcd_puthex(wl_status & (1<<TX_FULL));
           */
+         /*
          lcd_gotoxy(0,1);
          lcd_puts("          ");
          if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
@@ -1962,7 +1964,7 @@ int main (void)
             _delay_us(10);
             wl_module_CE_lo;
          }
-         
+         */
          
          
          
