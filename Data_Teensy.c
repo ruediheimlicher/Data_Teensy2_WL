@@ -1788,25 +1788,6 @@ int main (void)
      
       
       // WL write start
-      
-      // WL write end
-      
-      } // if hoststatus & (1<<MESSUNG_OK)
-      
-      if (hoststatus & (1<<DOWNLOAD_OK))
-      {
-         
-      }// if (hoststatus & (1<<DOWNLOAD_OK))
-      
-      
-      if (loopcount0==0xEFFF)
-      {
-         
-         loopcount0=0;
-         loopcount1+=1;
-         LOOPLEDPORT ^=(1<<LOOPLED);
-   //      continue;
-         
          // MARK: WL write
          wl_module_tx_config(wl_module_TX_NR_0);
          
@@ -1841,7 +1822,7 @@ int main (void)
           */
          lcd_gotoxy(2,3);
          lcd_puts("  ");
-        _delay_ms(1);
+         _delay_ms(1);
          lcd_gotoxy(2,3);
          lcd_putc('a');
          wl_module_send(payload,wl_module_PAYLOAD);
@@ -1933,7 +1914,7 @@ int main (void)
          
          // Lesen
          
-          wl_module_rx_config();
+         wl_module_rx_config();
          
          _delay_ms(10);
          // Read wl_module status
@@ -1950,39 +1931,39 @@ int main (void)
           lcd_puthex(wl_status & (1<<MAX_RT));
           lcd_puthex(wl_status & (1<<TX_FULL));
           */
-          lcd_gotoxy(0,1);
-          lcd_puts("          ");
-          if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
-          {
-          lcd_gotoxy(0,1);
-          
-          lcd_puts("RX$");
-          wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
-          PTX=0;
-          }
-          
-          if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
-          {
-          lcd_gotoxy(3,1);
-          
-          lcd_puts("TX$");
-          wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
-          PTX=0;
-          }
-          
-          if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
-          {
-          lcd_gotoxy(6,1);
-          
-          lcd_puts("RT$");
-          
-          wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
-          wl_module_CE_hi;
-          _delay_us(10);
-          wl_module_CE_lo;
-          }
-          
-          
+         lcd_gotoxy(0,1);
+         lcd_puts("          ");
+         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+         {
+            lcd_gotoxy(0,1);
+            
+            lcd_puts("RX$");
+            wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            PTX=0;
+         }
+         
+         if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
+         {
+            lcd_gotoxy(3,1);
+            
+            lcd_puts("TX$");
+            wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+            PTX=0;
+         }
+         
+         if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
+         {
+            lcd_gotoxy(6,1);
+            
+            lcd_puts("RT$");
+            
+            wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
+            wl_module_CE_hi;
+            _delay_us(10);
+            wl_module_CE_lo;
+         }
+         
+         
          
          
          
@@ -2011,7 +1992,26 @@ int main (void)
          //lcd_putc('a');
          
          //wl_module_tx_config(0);
-    
+         
+
+      // WL write end
+      
+      } // if hoststatus & (1<<MESSUNG_OK)
+      
+      if (hoststatus & (1<<DOWNLOAD_OK))
+      {
+         
+      }// if (hoststatus & (1<<DOWNLOAD_OK))
+      
+      
+      if (loopcount0==0xEFFF)
+      {
+         
+         loopcount0=0;
+         loopcount1+=1;
+         LOOPLEDPORT ^=(1<<LOOPLED);
+   //      continue;
+         
 
          if (usbstatus & (1<<WRITEAUTO))
          {
