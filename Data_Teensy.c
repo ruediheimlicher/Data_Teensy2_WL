@@ -1068,7 +1068,7 @@ int main (void)
    CPU_PRESCALE(CPU_8MHz); // Strom sparen
    
    timer0();
-      sei();
+   sei();
    Master_Init();
    SPI_PORT_Init();
    SPI_Master_init();
@@ -1472,8 +1472,23 @@ int main (void)
             {
                lcd_putint1(wl_data[i]);
             }
+            
             lcd_putc(' ');
             lcd_puthex(wl_data[0]);
+            
+            //lcd_putc(' ');
+            //lcd_puthex(wl_data[10]);
+          //  lcd_putc(' ');
+          //  lcd_puthex(wl_data[11]);
+
+            
+            uint16_t temperatur = (wl_data[11]<<8);
+            temperatur |= wl_data[10];
+             lcd_gotoxy(12,3);
+            lcd_putint12(temperatur);
+            
+           
+            
             OSZIA_HI;
             
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
