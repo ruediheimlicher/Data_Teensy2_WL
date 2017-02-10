@@ -1887,7 +1887,7 @@ int main (void)
             
             // heute
             wl_module_rx_config();
-            delay_ms(5);
+            //delay_ms(5);
             maincounter++;
             
             PTX=0;
