@@ -1785,6 +1785,12 @@ int main (void)
          lcd_putint12(adcwert);
          //messungcounter++;
          messungcounter ++; // 8 Wertze geschrieben, naechste zeile
+     
+      
+      // WL write start
+      
+      // WL write end
+      
       } // if hoststatus & (1<<MESSUNG_OK)
       
       if (hoststatus & (1<<DOWNLOAD_OK))
@@ -1821,6 +1827,8 @@ int main (void)
          payload[7] = 2;
          payload[8] = 6;
          payload[9] = maincounter;
+         payload[10] = sendbuffer[ADCLO];
+         payload[11] = sendbuffer[ADCHI];
          
          /*
           wl_module_CE_lo;
