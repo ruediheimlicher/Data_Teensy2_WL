@@ -1373,7 +1373,7 @@ int main (void)
         //lcd_gotoxy(0,3);
         //lcd_puthex(block);
         
-        writeerr = mmc_disk_write ((void*)mmcbuffer,block ,1); // Block 1 ist system
+        writeerr = mmc_disk_write ((void*)mmcbuffer,block ,1); // Block 0 ist system
         //lcd_putc('e');
         //lcd_puthex(writeerr);
         
@@ -1471,7 +1471,7 @@ int main (void)
             lcd_gotoxy(0,3);
             lcd_putint1(wl_data[2]);
             lcd_putc('.');
-            for (i=4; i<7; i++)
+            for (i=4; i<6; i++)
             {
                lcd_putint1(wl_data[i]);
             }
@@ -1484,15 +1484,39 @@ int main (void)
           //  lcd_putc(' ');
           //  lcd_puthex(wl_data[11]);
 
-            sendbuffer[ADC2LO]= wl_data[10];
-            sendbuffer[ADC2HI]= wl_data[11];
+            sendbuffer[ADC0LO]= wl_data[10];
+            sendbuffer[ADC0HI]= wl_data[11];
+            //sendbuffer[ADC0LO+8]= wl_data[10];
+            //sendbuffer[ADC0HI+8]= wl_data[11];
+
+            lcd_gotoxy(8,2);
+            lcd_puthex(wl_data[11]);
+            lcd_puthex(wl_data[10]);
+            
+            
+            
+            sendbuffer[ADC1LO]= wl_data[12];
+            sendbuffer[ADC1HI]= wl_data[13];
+
+            //sendbuffer[ADC1LO+10]= wl_data[12];
+            //sendbuffer[ADC1HI+10]= wl_data[13];
+
+            lcd_gotoxy(14,2);
+            lcd_puthex(wl_data[13]);
+            lcd_puthex(wl_data[12]);
+           
 
             
             uint16_t temperatur = (wl_data[11]<<8);
             temperatur |= wl_data[10];
-             lcd_gotoxy(12,3);
+            lcd_gotoxy(8,3);
             lcd_putint12(temperatur);
-            
+
+            uint16_t temperatur1 = (wl_data[13]<<8);
+            temperatur1 |= wl_data[12];
+            lcd_gotoxy(14,3);
+            lcd_putint12(temperatur1);
+
            
             
             OSZIA_HI;
@@ -1586,10 +1610,14 @@ int main (void)
       if (hoststatus & (1<<MESSUNG_OK)) // Intervall abgelaufen. In ISR gesetzt, Messungen vornehmen
       {
          /*
+          // teensy
+          //ADC
           ADC 0 lo
           ADC 0 hi
           ADC 1 lo
           ADC 1 hi
+          
+          //MC3204 12Bit
           ADC 12bit lo
           ADC 12bit hi
           ADC 12bit lo
@@ -1599,28 +1627,37 @@ int main (void)
           ADC 12bit lo
           ADC 12bit hi
           
-          Digi Ausgang
-          Digi Ausgang
-          Digi Ausgang
-          Digi Ausgang
-          Digi Ausgang
-          Digi Ausgang
-          Digi Ausgang
-          Digi Ausgang
-          
-          Digi Eingang
-          Digi Eingang
-          Digi Eingang
-          Digi Eingang
+          // Digi
           Digi Eingang
           Digi Eingang
           Digi Eingang
           Digi Eingang
           
-          DA 1 lo
-          DA 1 hi
-          DA 2 lo
-          DA 2 hi
+          
+          // Satellit
+          //ADC
+          ADC 0 lo
+          ADC 0 hi
+          ADC 1 lo
+          ADC 1 hi
+          
+          //MC3204 12Bit
+          ADC 12bit lo
+          ADC 12bit hi
+          ADC 12bit lo
+          ADC 12bit hi
+          ADC 12bit lo
+          ADC 12bit hi
+          ADC 12bit lo
+          ADC 12bit hi
+          
+          // Digi
+          Digi Eingang
+          Digi Eingang
+          Digi Eingang
+          Digi Eingang
+          
+          
           
           
           
@@ -1676,11 +1713,12 @@ int main (void)
          sendbuffer[2] = 27;
          sendbuffer[5] = 28;//recvbuffer[STARTMINUTELO_BYTE];;
          sendbuffer[6] = 29;//recvbuffer[STARTMINUTEHI_BYTE];;
-         sendbuffer[15] = 31;
+         
+         sendbuffer[15] = 31; // Grenze zu DATA markieren
 
          // Data von ADC laden
-         sendbuffer[ADCLO]= (adcwert & 0x00FF);
-         sendbuffer[ADCHI]= ((adcwert & 0xFF00)>>8);
+     //    sendbuffer[ADC0LO]= (adcwert & 0x00FF);
+     //    sendbuffer[ADC0HI]= ((adcwert & 0xFF00)>>8);
          
          
          
@@ -1792,6 +1830,7 @@ int main (void)
          //lcd_putint12(adcwert/4); // *256/1024
          // lcd_putc(' ');
          //OSZIA_LO;
+         
          double adcfloat = adcwert;
          adcfloat = adcfloat *2490/1024; // kalibrierung VREF, 1V > 0.999, Faktor 10, 45 us
          
@@ -1806,11 +1845,13 @@ int main (void)
          lcd_putc('t');
          lcd_putint12(adcwert);
          //messungcounter++;
-         messungcounter ++; // 8 Wertze geschrieben, naechste zeile
+         messungcounter ++; // 8 Werte geschrieben, naechste zeile
      
       
       // WL write start
          // MARK: WL write
+         
+   //      continue;
          wl_module_tx_config(wl_module_TX_NR_0);
          
          // WL
@@ -1830,10 +1871,11 @@ int main (void)
          payload[7] = 2;
          payload[8] = 6;
          payload[9] = maincounter;
-  //       payload[10] = sendbuffer[ADCLO];
-  //       payload[11] = sendbuffer[ADCHI];
+  //       payload[10] = sendbuffer[ADC0LO];
+  //       payload[11] = sendbuffer[ADC0HI];
          payload[10] = adcwert & 0x00FF;
          payload[11] = (adcwert & 0xFF00)>>8;
+         
          
          /*
           wl_module_CE_lo;
@@ -1850,19 +1892,21 @@ int main (void)
          //lcd_gotoxy(2,3);
          //lcd_putc('a');
          wl_module_send(payload,wl_module_PAYLOAD);
+         _delay_ms(1);
+         
          //lcd_gotoxy(3,3);
          //lcd_putc('z');
          // maincounter++;
-         lcd_gotoxy(10,2);
-         lcd_puthex(maincounter);
+         //lcd_gotoxy(10,1);
+         //lcd_puthex(maincounter);
          if (maincounter >250)
             
          {
             maincounter = 0;
          }
-         lcd_putc(' ');
-         lcd_putc('i');
-         lcd_puthex(wl_isr_counter);
+         //lcd_putc(' ');
+         //lcd_putc('i');
+         //lcd_puthex(wl_isr_counter);
          // end WL
          
          
@@ -1882,8 +1926,8 @@ int main (void)
          _delay_us(20);
          wl_module_CSN_hi;                               // Pull up chip select
           */
-         lcd_gotoxy(14,2);
-         lcd_puthex(wl_status);
+         //lcd_gotoxy(16,1);
+         //lcd_puthex(wl_status);
          
          lcd_gotoxy(0,2);
          lcd_puts("          ");
@@ -1891,7 +1935,6 @@ int main (void)
          {
             lcd_gotoxy(0,2);
             lcd_puts("RX-");
-            
             
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
             delay_ms(5);
@@ -1903,7 +1946,7 @@ int main (void)
          if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
          {
             lcd_gotoxy(3,2);
-            lcd_puts("TX-");
+            lcd_puts("TX*");
             delay_ms(5);
             
             wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
@@ -2065,8 +2108,8 @@ int main (void)
              
              // adcwert *=10;
              // vor Korrektur
-             sendbuffer[ADCLO]= (adcwert & 0x00FF);
-             sendbuffer[ADCHI]= ((adcwert & 0xFF00)>>8);
+             sendbuffer[ADC0LO]= (adcwert & 0x00FF);
+             sendbuffer[ADC0HI]= ((adcwert & 0xFF00)>>8);
              
              //adcwert /= 2;
              lcd_gotoxy(0,1);
@@ -2081,8 +2124,8 @@ int main (void)
              lcd_putint12(adcwert);
              
              */
-            //           sendbuffer[ADCLO+2]= (adcwert & 0x00FF);
-            //           sendbuffer[ADCHI+2]= ((adcwert & 0xFF00)>>8);
+            //           sendbuffer[ADC0LO+2]= (adcwert & 0x00FF);
+            //           sendbuffer[ADC0HI+2]= ((adcwert & 0xFF00)>>8);
             /*
              lcd_putc(' ');
              lcd_gotoxy(10,1);
@@ -2403,7 +2446,7 @@ int main (void)
             }break; // LOGGER_NEXT
 
    // MARK: LOGGER_STOP
-            case LOGGER_STOP:
+            case LOGGER_STOP: // 0xAF
             {
                hoststatus &= ~(1<<DOWNLOAD_OK); // Download von SD beendet, Messungen fortsetzen
                //lcd_clr_line(1);

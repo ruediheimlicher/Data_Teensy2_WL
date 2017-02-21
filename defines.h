@@ -150,12 +150,18 @@
 #define DSLO               12
 #define DSHI               13
 
-// ADC
-#define  ADCLO             16
-#define  ADCHI             17
-// ADC 2
-#define  ADC2LO             18
-#define  ADC2HI             19
+//ADC interner ADC
+#define  ADCINTLO          30
+#define  ADCINTHI          31
+
+
+//ADC von extern
+// ADC 0
+#define  ADC0LO             16
+#define  ADC0HI             17
+// ADC 1
+#define  ADC1LO             18
+#define  ADC1HI             19
 
 // USB Ausgang
 #define SERVOALO           10
