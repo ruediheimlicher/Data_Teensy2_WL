@@ -240,7 +240,7 @@ WORD AccFiles, AccDirs;
 BYTE RtcOk;				/* RTC is available */
 volatile UINT Timer;	/* Performance timer (100Hz increment) */
 volatile uint8_t mmcbuffer[SD_DATA_SIZE] = {};
-const uint8_t rambuffer[SD_DATA_SIZE] PROGMEM = {};
+//const uint8_t rambuffer[SD_DATA_SIZE] PROGMEM = {};
 const uint8_t databuffer[SD_DATA_SIZE] PROGMEM = {};
 //volatile uint8_t writebuffer[512] = {};
 volatile uint8_t mmcstatus = 0;

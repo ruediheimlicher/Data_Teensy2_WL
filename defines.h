@@ -145,6 +145,8 @@
 #define DATACOUNT_LO       12 // Nummer der Messung, fortlaufend
 #define DATACOUNT_HI       13
 
+
+
 // USB Eingang
 // Temperatur
 #define DSLO               12
