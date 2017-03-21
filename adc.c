@@ -45,7 +45,7 @@ int16_t adc_read(uint8_t derKanal)
    ADCSRB = (1<<ADHSM) | (derKanal & 0x20);             // high speed mode
    //ADMUX = aref | (derKanal & 0x1F);                    // configure mux input
    
-   ADMUX = ADC_REF_INTERNAL | (derKanal & 0x1F); // Vcc als Referenz
+   ADMUX = ADC_REF_INTERNAL | (derKanal & 0x1F); // Interne Rev als Referenz
    
    ADCSRA |= (1<<ADSC);              // eine ADC-Wandlung (Der ADC setzt dieses Bit ja wieder auf 0 nach dem Wandeln)
       

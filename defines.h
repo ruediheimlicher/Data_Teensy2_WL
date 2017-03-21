@@ -156,7 +156,7 @@
 #define  ADCINTLO          30
 #define  ADCINTHI          31
 
-
+/*
 //ADC von extern
 // ADC 0
 #define  ADC0LO             16
@@ -164,6 +164,60 @@
 // ADC 1
 #define  ADC1LO             18
 #define  ADC1HI             19
+*/
+//
+// teensy
+//ADC
+#define ADC0LO          16	// ADC 0 lo
+#define ADC0HI          17	// ADC 0 hi
+#define ADC1LO          18	// ADC 1 lo
+#define ADC1HI          19	// ADC 1 hi
+
+//MC3204 12Bit
+#define ADC12_0_LO	20        // ADC 12bit lo
+#define ADC12_0_HI	21        // ADC 12bit hi
+#define ADC12_1_LO	22        // ADC 12bit lo
+#define ADC12_1_HI	23        // ADC 12bit hi
+#define ADC12_2_LO	24        // ADC 12bit lo
+#define ADC12_2_HI	25        // ADC 12bit hi
+#define ADC12_3_LO	26        // ADC 12bit lo
+#define ADC12_3_HI	27        // ADC 12bit hi
+
+// Digi
+#define DIGI0         	28 	// Digi Eingang
+#define DIGI1          	29	// Digi Eingang
+#define DIGI2          	30	// Digi Eingang
+#define DIGI3          	31	// Digi Eingang
+
+
+// Satellit
+
+// ADC
+#define EXTADC0LO         32	// ADC 0 lo
+#define EXTADC0HI         33	// ADC 0 hi
+#define EXTADC1LO         34	// ADC 1 lo
+#define EXTADC1HI         35	// ADC 1 hi
+
+//MC3204 12Bit
+
+#define EXTADC12_0_LO	36        // ADC 12bit lo
+#define EXTADC12_0_HI	37        // ADC 12bit hi
+#define EXTADC12_1_LO	38        // ADC 12bit lo
+#define EXTADC12_1_HI	39        // ADC 12bit hi
+#define EXTADC12_2_LO	40        // ADC 12bit lo
+#define EXTADC12_2_HI	41        // ADC 12bit hi
+#define EXTADC12_3_LO	42        // ADC 12bit lo
+#define EXTADC12_3_HI	43        // ADC 12bit hi
+
+// Digi
+
+#define EXTDIGI0         44 	// Digi Eingang
+#define EXTDIGI1         45	// Digi Eingang
+#define EXTDIGI2         46	// Digi Eingang
+#define EXTDIGI3         47	// Digi Eingang
+
+//
+
 
 // USB Ausgang
 #define SERVOALO           10
