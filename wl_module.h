@@ -35,7 +35,7 @@
 //extern volatile uint8_t PTX;
 
 // WL-Module settings
-#define wl_module_CH			2
+#define wl_module_CH			100
 #define wl_module_PAYLOAD		16
 #define wl_module_RF_DR_HIGH	0		//0 = 1Mbps, 1 = 2Mpbs
 #define wl_module_RF_SETUP		(RF_SETUP_RF_PWR_0 | RF_SETUP_RF_DR_250)	

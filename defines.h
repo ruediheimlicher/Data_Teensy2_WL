@@ -61,6 +61,16 @@
 #define ADC_BUFSIZE              4
 #define ADC_DELAY                   8
 
+
+#define WL_ISR_RECV  7
+#define WL_SEND_REQUEST 6
+#define WL_NEXT_REQUEST 5
+
+#define WL_DATA_SENT    4
+
+
+
+
 #endif
 
 
