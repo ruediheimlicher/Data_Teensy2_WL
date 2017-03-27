@@ -66,7 +66,7 @@
 #define WL_SEND_REQUEST 6
 #define WL_NEXT_REQUEST 5
 
-#define WL_DATA_SENT    4
+#define WL_DATA_PENDENT    4
 
 
 

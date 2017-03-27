@@ -880,7 +880,7 @@ ISR(INT0_vect) // Interrupt bei CS, falling edge
 {
    OSZIA_LO;
    inindex=0;
-   wl_spi_status |= (1<<7);
+   wl_spi_status |= (1<<WL_ISR_RECV);
    
    
    wl_isr_counter++;
@@ -1522,7 +1522,7 @@ int main (void)
             
             lcd_putc(' ');
              */
-            // maincounter von modul
+             // maincounter von modul
             lcd_gotoxy(18,3);
             lcd_puthex(wl_data[0]);
             
