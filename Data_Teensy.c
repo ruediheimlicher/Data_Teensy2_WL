@@ -1453,7 +1453,7 @@ int main (void)
       
       if (wl_spi_status & (1<<WL_ISR_RECV)) // in ISR gesetzt, ETWAS LOS AUF WL
       {
-        
+         
          if (int0counter < 0x2F)
          {
             int0counter++;
@@ -1466,8 +1466,12 @@ int main (void)
          wl_spi_status &= ~(1<<WL_ISR_RECV);
          
          
+         lcd_gotoxy(10,0);
+         lcd_puthex(int0counter);
+         lcd_putc(' ');
+         lcd_puthex(wl_isr_counter);
          
-         //lcd_gotoxy(18,1);
+         lcd_gotoxy(18,1);
          
          wl_status = wl_module_get_status();
          
@@ -1486,7 +1490,7 @@ int main (void)
          //lcd_puts("          ");
          if (wl_status & (1<<RX_DR)) // IRQ: Package has been received
          {
-          //  OSZIA_LO; // 130ms mit Anzeige
+            //  OSZIA_LO; // 130ms mit Anzeige
             lcd_gotoxy(0,2);
             lcd_puts("RX");
             
@@ -1501,36 +1505,36 @@ int main (void)
             lcd_gotoxy(6,2);
             lcd_putc('p');
             lcd_puthex(pipenummer);
-
+            
             uint8_t readstatus = wl_module_get_data((void*)&wl_data);
             uint8_t i;
             //lcd_puthex(readstatus);
             //lcd_putc(' ');
             //lcd_gotoxy(0,3);
-            //lcd_gotoxy(12,2);
-            //lcd_putc('p');
-            //lcd_puthex(wl_data[9]);
-
+            lcd_gotoxy(12,2);
+            lcd_putc('p');
+            lcd_puthex(wl_data[9]);
+            
             /*
              Kontrolle: e von modul
-            lcd_putint1(wl_data[2]);
-            lcd_putc('.');
-            for (i=4; i<6; i++)
-            {
-               lcd_putint1(wl_data[i]);
-            }
-            
-            lcd_putc(' ');
+             lcd_putint1(wl_data[2]);
+             lcd_putc('.');
+             for (i=4; i<6; i++)
+             {
+             lcd_putint1(wl_data[i]);
+             }
+             
+             lcd_putc(' ');
              */
-             // maincounter von modul
+            // maincounter von modul
             lcd_gotoxy(18,3);
             lcd_puthex(wl_data[0]);
             
             //lcd_putc(' ');
             //lcd_puthex(wl_data[10]);
-          //  lcd_putc(' ');
-          //  lcd_puthex(wl_data[11]);
-
+            //  lcd_putc(' ');
+            //  lcd_puthex(wl_data[11]);
+            
             sendbuffer[ADC0LO]= wl_data[10];
             sendbuffer[ADC0HI]= wl_data[11];
             //sendbuffer[ADC0LO+8]= wl_data[10];
@@ -1550,22 +1554,22 @@ int main (void)
             // data von pt
             sendbuffer[ADC1LO]= wl_data[12];
             sendbuffer[ADC1HI]= wl_data[13];
-
+            
             //sendbuffer[ADC1LO+10]= wl_data[12];
             //sendbuffer[ADC1HI+10]= wl_data[13];
-
+            
             lcd_gotoxy(0,1);
             lcd_puthex(wl_data[13]);
             lcd_puthex(wl_data[12]);
-  
+            
             uint16_t temperatur1 = (wl_data[13]<<8);
             temperatur1 |= wl_data[12];
             lcd_gotoxy(6,1);
             lcd_putint12(temperatur1);
-
-           
             
-           // OSZIA_HI;
+            
+            
+            // OSZIA_HI;
             
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
             
@@ -1582,30 +1586,26 @@ int main (void)
             OSZIA_HI;
          }
          else
-         
-         if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
-         {
-            lcd_gotoxy(18,1);
-            lcd_puts("RT");
             
-            wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
-            wl_module_CE_hi;
-            _delay_us(15);
-            wl_module_CE_lo;
-         }
-         else
-         {
-            lcd_gotoxy(18,1);
-            lcd_puts("--");
-
-         }
+            if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
+            {
+               lcd_gotoxy(18,1);
+               lcd_puts("RT");
+               
+               wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
+               wl_module_CE_hi;
+               _delay_us(15);
+               wl_module_CE_lo;
+            }
+            else
+            {
+               lcd_gotoxy(18,1);
+               lcd_puts("--");
+               
+            }
          
-         lcd_gotoxy(10,0);
-         lcd_puthex(int0counter);
-         lcd_putc(' ');
-         lcd_puthex(wl_isr_counter);
-
-     //    wl_spi_status = 0;
+         
+         //    wl_spi_status = 0;
       } // end ISR abarbeiten (wl_spi_status & (1<<7))
       
       // ********
@@ -1723,43 +1723,43 @@ int main (void)
          hoststatus &= ~(1<<MESSUNG_OK);
          // ADC
          /*
-         spiADC_init();
-         cli();
-         //uint16_t tempdata =MCP3208_spiRead(SingleEnd,1);
-         uint8_t i=0;
-         //uint16_t tempdata=0;
-         for (i=0;i<4;i++)
-         {
-            //tempdata = MCP3204_spiRead(i);
-            ADC_Array[i] = MCP3204_spiRead(i);;
-         }
-         //uint16_t tempdata = MCP3204_spiRead(1);
-         lcd_gotoxy(0,2);
-         for (i=0;i<4;i++)
-         {
-            lcd_putint12(ADC_Array[i]);
-            lcd_putc(' ');
-         }
-         
-         sei();
+          spiADC_init();
+          cli();
+          //uint16_t tempdata =MCP3208_spiRead(SingleEnd,1);
+          uint8_t i=0;
+          //uint16_t tempdata=0;
+          for (i=0;i<4;i++)
+          {
+          //tempdata = MCP3204_spiRead(i);
+          ADC_Array[i] = MCP3204_spiRead(i);;
+          }
+          //uint16_t tempdata = MCP3204_spiRead(1);
+          lcd_gotoxy(0,2);
+          for (i=0;i<4;i++)
+          {
+          lcd_putint12(ADC_Array[i]);
+          lcd_putc(' ');
+          }
+          
+          sei();
           */
          //lcd_clr_line(2);
          
          lcd_gotoxy(4,0);
          lcd_putint(messungcounter);
          lcd_putc(' ');
-
+         
          
          uint16_t adcwert = adc_read(0);
          
          //_delay_ms(100);
-  
+         
          
          //lcd_gotoxy(8,0);
          
          //lcd_putint12(adcwert);
          //lcd_putc(' ');
-
+         
          
          // adcwert *=10;
          // vor Korrektur
@@ -1773,10 +1773,10 @@ int main (void)
          sendbuffer[6] = 29;//recvbuffer[STARTMINUTEHI_BYTE];;
          
          sendbuffer[15] = 31; // Grenze zu DATA markieren
-
+         
          // Data von ADC laden
-     //    sendbuffer[ADC0LO]= (adcwert & 0x00FF);
-     //    sendbuffer[ADC0HI]= ((adcwert & 0xFF00)>>8);
+         //    sendbuffer[ADC0LO]= (adcwert & 0x00FF);
+         //    sendbuffer[ADC0HI]= ((adcwert & 0xFF00)>>8);
          
          
          
@@ -1784,7 +1784,7 @@ int main (void)
          sendbuffer[DATACOUNT_LO] = (messungcounter & 0x00FF);
          sendbuffer[DATACOUNT_HI] = ((messungcounter & 0xFF00)>>8);
          
-          /*
+         /*
           usbstatus1
           #define SAVE_SD_BIT             0
           #define SAVE_SD_RUN_BIT         1
@@ -1802,44 +1802,44 @@ int main (void)
             // nummer in SD sichern
             mmcbuffer[2*saveSDposition+2] = (messungcounter & 0x00FF);
             mmcbuffer[2*saveSDposition+3] = ((messungcounter & 0xFF00)>>8);
-
+            
             /*
-            adcwert += 4;
-            mmcbuffer[2*saveSDposition+2] = (adcwert & 0x00FF);
-            mmcbuffer[2*saveSDposition+3] = ((adcwert & 0xFF00)>>8);
-            adcwert += 4;
-            mmcbuffer[2*saveSDposition+4] = (adcwert & 0x00FF);
-            mmcbuffer[2*saveSDposition+5] = ((adcwert & 0xFF00)>>8);
-            adcwert += 4;
-            mmcbuffer[2*saveSDposition+6] = (adcwert & 0x00FF);
-            mmcbuffer[2*saveSDposition+7] = ((adcwert & 0xFF00)>>8);
-            
-            // restliche Positionen fuellen
-            
-            for (uint8_t pos = 0;pos<4;pos++)
-            {
-               mmcbuffer[2*saveSDposition + 8 + 2*pos] = pos;
-               mmcbuffer[2*saveSDposition + 8 + 2*pos+1] = 0;
-            }
-            */
+             adcwert += 4;
+             mmcbuffer[2*saveSDposition+2] = (adcwert & 0x00FF);
+             mmcbuffer[2*saveSDposition+3] = ((adcwert & 0xFF00)>>8);
+             adcwert += 4;
+             mmcbuffer[2*saveSDposition+4] = (adcwert & 0x00FF);
+             mmcbuffer[2*saveSDposition+5] = ((adcwert & 0xFF00)>>8);
+             adcwert += 4;
+             mmcbuffer[2*saveSDposition+6] = (adcwert & 0x00FF);
+             mmcbuffer[2*saveSDposition+7] = ((adcwert & 0xFF00)>>8);
+             
+             // restliche Positionen fuellen
+             
+             for (uint8_t pos = 0;pos<4;pos++)
+             {
+             mmcbuffer[2*saveSDposition + 8 + 2*pos] = pos;
+             mmcbuffer[2*saveSDposition + 8 + 2*pos+1] = 0;
+             }
+             */
             for (uint8_t pos = 0;pos<6;pos++)
             {
                mmcbuffer[2*saveSDposition + 4 + 2*pos] = 0;
                mmcbuffer[2*saveSDposition + 4 + 2*pos+1] = 0;
             }
-
+            
             //lcd_putc(' ');
             //lcd_putint12(mmcwritecounter % 0x200);
             //lcd_putc('b');
             //lcd_puthex(blockcounter);
             
             /*
-            if (saveSDposition == 8) // erstes Data an 16
-            {
-               lcd_gotoxy(0,3);
-               lcd_puthex(mmcbuffer[2*saveSDposition]);
-                lcd_puthex(mmcbuffer[2*saveSDposition+1]);
-            }
+             if (saveSDposition == 8) // erstes Data an 16
+             {
+             lcd_gotoxy(0,3);
+             lcd_puthex(mmcbuffer[2*saveSDposition]);
+             lcd_puthex(mmcbuffer[2*saveSDposition+1]);
+             }
              */
             saveSDposition += 8;
             mmcwritecounter += 16; // Zaehlung write-Prozesse, immer 2 bytes pro messung
@@ -1880,14 +1880,14 @@ int main (void)
             saveSDposition = 0;
             sendbuffer[BLOCKOFFSETLO_BYTE] = blockcounter & 0x00FF;
             sendbuffer[BLOCKOFFSETHI_BYTE] = (blockcounter & 0xFF00)>>8; // Nummer des geschriebenen Blocks hi
-
+            
          }
          else if (! usb_configured()) //b kein USB
          {
             lcd_gotoxy(8,1);
             lcd_puts("esc  ");
-
-           // usbstatus1 &= ~(1<<SAVE_SD_RUN_BIT);   //  Schreiben so oder so beenden
+            
+            // usbstatus1 &= ~(1<<SAVE_SD_RUN_BIT);   //  Schreiben so oder so beenden
          }
          
          //adcwert /= 2;
@@ -1903,29 +1903,29 @@ int main (void)
          //OSZIA_HI;
          
          uint8_t usberfolg = usb_rawhid_send((void*)sendbuffer, 50);
-//         lcd_gotoxy(10,0);
+         //         lcd_gotoxy(10,0);
          //lcd_putint(adcwert & 0x00FF);
          //lcd_putc(' ');
          //lcd_putint2((adcwert & 0xFF00)>>8);
- //        lcd_putc('t');
-//         lcd_putint12(adcwert);
+         //        lcd_putc('t');
+         //         lcd_putint12(adcwert);
          //messungcounter++;
          messungcounter ++; // 8 Werte geschrieben, naechste zeile
-     
-      
-      // WL write start
+         
+         
+         // WL write start
          // MARK: WL write
          
-   //      continue;
+         //      continue;
          
- 
+         
          wl_module_tx_config(wl_module_TX_NR_1);
          
          // WL
          uint8_t k;
          for (k=9; k<wl_module_PAYLOAD; k++)
          {
-  //          payload[k] = k;
+            //          payload[k] = k;
          }
          // pi 3.14159 26535
          payload[0] = 3;
@@ -1938,14 +1938,13 @@ int main (void)
          payload[7] = 2;
          payload[8] = 6;
          payload[9] = maincounter;
-  //       payload[10] = sendbuffer[ADC0LO];
-  //       payload[11] = sendbuffer[ADC0HI];
+         //       payload[10] = sendbuffer[ADC0LO];
+         //       payload[11] = sendbuffer[ADC0HI];
          payload[10] = adcwert & 0x00FF;
          payload[11] = (adcwert & 0xFF00)>>8;
          
          
          wl_module_send(payload,wl_module_PAYLOAD);
-         wl_spi_status |= (1<<WL_DATA_SENT);
          _delay_ms(1);
          
          //lcd_gotoxy(3,3);
@@ -2026,126 +2025,6 @@ int main (void)
          }
          else
          {
-   //         lcd_gotoxy(18,2);
-    //        lcd_puts("--");
-
-         }
-         
-         if (wl_status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
-         {
-            lcd_gotoxy(19,2);
-            lcd_putc('F');
-            
-         }
-         
-         
-         // next pipe
-         
- /*
-         wl_module_tx_config(wl_module_TX_NR_2);
-         
-         // WL
-         uint8_t l;
-         for (l=9; l<wl_module_PAYLOAD; l++)
-         {
-//            payload[l] = l;
-         }
-         // avogadro 6.022140857
-         payload[0] = 6;
-         payload[1] = 0;
-         payload[2] = 0;
-         payload[3] = 2;
-         payload[4] = 2;
-         payload[5] = 1;
-         payload[6] = 4;
-         payload[7] = 8;
-         payload[8] = 8;
-         payload[9] = maincounter;
-         //       payload[10] = sendbuffer[ADC0LO];
-         //       payload[11] = sendbuffer[ADC0HI];
-         payload[10] = adcwert & 0x00FF;
-         payload[11] = (adcwert & 0xFF00)>>8;
-         
-         
-         wl_module_send(payload,wl_module_PAYLOAD);
-         _delay_ms(1);
-         
-         //lcd_gotoxy(3,3);
-         //lcd_putc('z');
-         // maincounter++;
-         //lcd_gotoxy(10,1);
-         //lcd_puthex(maincounter);
-         if (maincounter >250)
-            
-         {
-            maincounter = 0;
-         }
-         //lcd_putc(' ');
-         //lcd_putc('i');
-         //lcd_puthex(wl_isr_counter);
-         // end WL
-         
-         
-         // Read wl_module status
-         
-         wl_status = wl_module_get_status();
-         
-         
-         //lcd_gotoxy(0,2);
-         //lcd_puts("          ");
-         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
-         {
-            lcd_gotoxy(0,2);
-            lcd_puts("rx+");
-            
-            wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
-            delay_ms(5);
-            //          wl_module_rx_config();
-            
-            PTX=0;
-         }
-         
-         if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
-         {
-            lcd_gotoxy(0,3);
-            lcd_puts("tx+");
-            delay_ms(5);
-            
-            wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
-            delay_ms(5);
-            
-            // heute
-            wl_module_rx_config();
-            //delay_ms(5);
-            maincounter++;
-            
-            PTX=0;
-         }
-         else
-         {
-            lcd_gotoxy(0,3);
-            lcd_puts("---");
-            
-         }
-         
-         lcd_gotoxy(18,2);
-         lcd_putc(' ');
-         lcd_putc(' ');
-         
-         if (wl_status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
-         {
-            lcd_gotoxy(18,2);
-            lcd_puts("RT");
-            
-            
-            wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
-            wl_module_CE_hi;								// Start transmission
-            _delay_us(50);
-            wl_module_CE_lo;
-            
-         }
-         else
-         {
             //         lcd_gotoxy(18,2);
             //        lcd_puts("--");
             
@@ -2158,22 +2037,142 @@ int main (void)
             
          }
          
-
-         // end next pipe
- */
-         // Lesen
          
-        // wl_module_rx_config();
+         // next pipe
          
          /*
-         _delay_ms(10);
-         // Read wl_module status
-         wl_module_CSN_lo;                      // Pull down chip select
-         _delay_us(10);
-         wl_status = spi_fast_shift(NOP);       // Read status register
-         _delay_us(10);
-         wl_module_CSN_hi;                               // Pull up chip select
-         */
+          wl_module_tx_config(wl_module_TX_NR_2);
+          
+          // WL
+          uint8_t l;
+          for (l=9; l<wl_module_PAYLOAD; l++)
+          {
+          //            payload[l] = l;
+          }
+          // avogadro 6.022140857
+          payload[0] = 6;
+          payload[1] = 0;
+          payload[2] = 0;
+          payload[3] = 2;
+          payload[4] = 2;
+          payload[5] = 1;
+          payload[6] = 4;
+          payload[7] = 8;
+          payload[8] = 8;
+          payload[9] = maincounter;
+          //       payload[10] = sendbuffer[ADC0LO];
+          //       payload[11] = sendbuffer[ADC0HI];
+          payload[10] = adcwert & 0x00FF;
+          payload[11] = (adcwert & 0xFF00)>>8;
+          
+          
+          wl_module_send(payload,wl_module_PAYLOAD);
+          _delay_ms(1);
+          
+          //lcd_gotoxy(3,3);
+          //lcd_putc('z');
+          // maincounter++;
+          //lcd_gotoxy(10,1);
+          //lcd_puthex(maincounter);
+          if (maincounter >250)
+          
+          {
+          maincounter = 0;
+          }
+          //lcd_putc(' ');
+          //lcd_putc('i');
+          //lcd_puthex(wl_isr_counter);
+          // end WL
+          
+          
+          // Read wl_module status
+          
+          wl_status = wl_module_get_status();
+          
+          
+          //lcd_gotoxy(0,2);
+          //lcd_puts("          ");
+          if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+          {
+          lcd_gotoxy(0,2);
+          lcd_puts("rx+");
+          
+          wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+          delay_ms(5);
+          //          wl_module_rx_config();
+          
+          PTX=0;
+          }
+          
+          if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
+          {
+          lcd_gotoxy(0,3);
+          lcd_puts("tx+");
+          delay_ms(5);
+          
+          wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+          delay_ms(5);
+          
+          // heute
+          wl_module_rx_config();
+          //delay_ms(5);
+          maincounter++;
+          
+          PTX=0;
+          }
+          else
+          {
+          lcd_gotoxy(0,3);
+          lcd_puts("---");
+          
+          }
+          
+          lcd_gotoxy(18,2);
+          lcd_putc(' ');
+          lcd_putc(' ');
+          
+          if (wl_status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
+          {
+          lcd_gotoxy(18,2);
+          lcd_puts("RT");
+          
+          
+          wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
+          wl_module_CE_hi;								// Start transmission
+          _delay_us(50);
+          wl_module_CE_lo;
+          
+          }
+          else
+          {
+          //         lcd_gotoxy(18,2);
+          //        lcd_puts("--");
+          
+          }
+          
+          if (wl_status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
+          {
+          lcd_gotoxy(19,2);
+          lcd_putc('F');
+          
+          }
+          
+          
+          // end next pipe
+          */
+         // Lesen
+         
+         // wl_module_rx_config();
+         
+         /*
+          _delay_ms(10);
+          // Read wl_module status
+          wl_module_CSN_lo;                      // Pull down chip select
+          _delay_us(10);
+          wl_status = spi_fast_shift(NOP);       // Read status register
+          _delay_us(10);
+          wl_module_CSN_hi;                               // Pull up chip select
+          */
          /*
           lcd_gotoxy(0,1);
           lcd_puthex(wl_status & (1<<RX_DR));
@@ -2183,9 +2182,9 @@ int main (void)
           */
          
          
-
-      // WL write end
-      
+         
+         // WL write end
+         
       } // if hoststatus & (1<<MESSUNG_OK)
       
       if (hoststatus & (1<<DOWNLOAD_OK))
@@ -2200,9 +2199,9 @@ int main (void)
          loopcount0=0;
          loopcount1+=1;
          LOOPLEDPORT ^=(1<<LOOPLED);
-   //      continue;
+         //      continue;
          
-
+         
          if (usbstatus & (1<<WRITEAUTO))
          {
             uint8_t usberfolg = usb_rawhid_send((void*)sendbuffer, 50);
@@ -2262,41 +2261,41 @@ int main (void)
 #pragma mark Sensors
             // Temperatur messen mit DS18S20
             /*
-            if (gNsensors) // Sensor eingesteckt
-            {
-               start_temp_meas();
-               delay_ms(800);
-               read_temp_meas();
-               uint8_t line=0;
-               //Sensor 1
-               lcd_gotoxy(14,line);
-               lcd_puts("T:     \0");
-               if (gTempdata[0]/10>=100)
-               {
-                  lcd_gotoxy(13,line);
-                  lcd_putint((gTempdata[0]/10));
-               }
-               else
-               {
-                  lcd_gotoxy(12,line);
-                  lcd_putint2((gTempdata[0]/10));
-               }
-               
-               lcd_putc('.');
-               lcd_putint1(gTempdata[0]%10);
-               
-               sendbuffer[DSLO]=((gTempdata[0])& 0x00FF);// T kommt mit Faktor 10 vom DS. Auf TWI ist T verdoppelt
-               sendbuffer[DSHI]=((gTempdata[0]& 0xFF00)>>8);// T kommt mit Faktor 10 vom DS. Auf TWI ist T verdoppelt
-               //lcd_gotoxy(10,0);
-               //lcd_putint(sendbuffer[DSLO]);
-               //lcd_putc(' ');
-               //lcd_putint(sendbuffer[DSHI]);
-               // Halbgrad addieren
-               if (gTempdata[0]%10 >=5) // Dezimalstelle ist >=05: Wert  aufrunden, 1 addieren
-               {
-                  // txbuffer[INNEN] +=1;
-               }
-            }
+             if (gNsensors) // Sensor eingesteckt
+             {
+             start_temp_meas();
+             delay_ms(800);
+             read_temp_meas();
+             uint8_t line=0;
+             //Sensor 1
+             lcd_gotoxy(14,line);
+             lcd_puts("T:     \0");
+             if (gTempdata[0]/10>=100)
+             {
+             lcd_gotoxy(13,line);
+             lcd_putint((gTempdata[0]/10));
+             }
+             else
+             {
+             lcd_gotoxy(12,line);
+             lcd_putint2((gTempdata[0]/10));
+             }
+             
+             lcd_putc('.');
+             lcd_putint1(gTempdata[0]%10);
+             
+             sendbuffer[DSLO]=((gTempdata[0])& 0x00FF);// T kommt mit Faktor 10 vom DS. Auf TWI ist T verdoppelt
+             sendbuffer[DSHI]=((gTempdata[0]& 0xFF00)>>8);// T kommt mit Faktor 10 vom DS. Auf TWI ist T verdoppelt
+             //lcd_gotoxy(10,0);
+             //lcd_putint(sendbuffer[DSLO]);
+             //lcd_putc(' ');
+             //lcd_putint(sendbuffer[DSHI]);
+             // Halbgrad addieren
+             if (gTempdata[0]%10 >=5) // Dezimalstelle ist >=05: Wert  aufrunden, 1 addieren
+             {
+             // txbuffer[INNEN] +=1;
+             }
+             }
              */
          } //
          
@@ -2398,13 +2397,13 @@ int main (void)
                
                // Block lesen
                /*
-               lcd_putc('l');
-               lcd_puthex(recvbuffer[BLOCKOFFSETLO_BYTE]); // startblock lo
-               lcd_putc('h');
-               lcd_puthex(recvbuffer[BLOCKOFFSETHI_BYTE]); // startblock hi
-               lcd_putc('*');
-               lcd_puthex(recvbuffer[PACKETCOUNT_BYTE]); // packetcount
-               */
+                lcd_putc('l');
+                lcd_puthex(recvbuffer[BLOCKOFFSETLO_BYTE]); // startblock lo
+                lcd_putc('h');
+                lcd_puthex(recvbuffer[BLOCKOFFSETHI_BYTE]); // startblock hi
+                lcd_putc('*');
+                lcd_puthex(recvbuffer[PACKETCOUNT_BYTE]); // packetcount
+                */
                // old
                
                startblock = recvbuffer[BLOCKOFFSETLO_BYTE] | (recvbuffer[BLOCKOFFSETHI_BYTE]<<8); // zu lesender Block auf mmc
@@ -2439,7 +2438,7 @@ int main (void)
                   uint8_t headerindex=0;
                   for (headerindex = 0;headerindex < DATA_START_BYTE-2;headerindex++)
                   {
-                    // sendbuffer[headerindex+2] = mmcbuffer[headerindex];
+                     // sendbuffer[headerindex+2] = mmcbuffer[headerindex];
                      //sendbuffer[headerindex+2+1] = headerindex;
                   }
                } // if readerr==0
@@ -2459,7 +2458,7 @@ int main (void)
                sendbuffer[18] = 58;
                sendbuffer[19] = blockanzahl;
                sendbuffer[20] = 59;
-
+               
                uint8_t usberfolg = usb_rawhid_send((void*)sendbuffer, 50);
                //lcd_gotoxy(18,1);
                //lcd_puthex(usberfolg);
@@ -2470,15 +2469,15 @@ int main (void)
                // MARK: LOGGER_CONT
             case LOGGER_CONT:
             {
-              // lcd_clr_line(1);
-              // lcd_gotoxy(0,1);
-              // lcd_putc('c');
-              // lcd_putc(':');
+               // lcd_clr_line(1);
+               // lcd_gotoxy(0,1);
+               // lcd_putc('c');
+               // lcd_putc(':');
                sendbuffer[0] = LOGGER_CONT;
                usbstatus1 = recvbuffer[1];
                //code = LOGGER_CONT;
                //lcd_putc('c');
-              // lcd_puthex(code); // code
+               // lcd_puthex(code); // code
                
                // Block lesen
                //lcd_puthex(recvbuffer[STARTBLOC]); // startblock lo
@@ -2512,7 +2511,7 @@ int main (void)
                      sendbuffer[DATA_START_BYTE + paketindex] = mmcbuffer[(packetcount*PACKET_SIZE)+paketindex];
                   }
                }
-
+               
                sendbuffer[PACKETCOUNT_BYTE] = ++packetcount; //
                
                uint8_t usberfolg = usb_rawhid_send((void*)sendbuffer, 50);
@@ -2522,7 +2521,7 @@ int main (void)
                
             }break;
                
-         // MARK: LOGGER_NEXT
+               // MARK: LOGGER_NEXT
             case LOGGER_NEXT: // Block an startblock + downloadblocknummer lesen
             {
                //lcd_clr_line(1);
@@ -2531,7 +2530,7 @@ int main (void)
                //lcd_putc(':');
                //lcd_puthex(code); // code
                sendbuffer[0] = LOGGER_NEXT;
-
+               
                //startblock = recvbuffer[BLOCKOFFSETLO_BYTE] | (recvbuffer[BLOCKOFFSETHI_BYTE]<<8); // zu lesender Block auf mmc
                uint8_t paketindex = 0;
                //lcd_gotoxy(0,3);
@@ -2549,7 +2548,7 @@ int main (void)
                {
                   lcd_gotoxy(19,1);
                   lcd_putc('+');
-                } // if readerr==0
+               } // if readerr==0
                else
                {
                   lcd_gotoxy(19,1);
@@ -2560,8 +2559,8 @@ int main (void)
                //lcd_gotoxy(18,2);
                //lcd_puthex(usberfolg);
             }break; // LOGGER_NEXT
-
-   // MARK: LOGGER_STOP
+               
+               // MARK: LOGGER_STOP
             case LOGGER_STOP: // 0xAF
             {
                hoststatus &= ~(1<<DOWNLOAD_OK); // Download von SD beendet, Messungen fortsetzen
@@ -2652,7 +2651,7 @@ int main (void)
                
                blockcounter = recvbuffer[BLOCKOFFSETLO_BYTE] | (recvbuffer[BLOCKOFFSETHI_BYTE]<<8);
                startminute  = recvbuffer[STARTMINUTELO_BYTE] | (recvbuffer[STARTMINUTEHI_BYTE]<<8);
-
+               
                lcd_putc(' ');
                lcd_puthex(blockcounter);
                
@@ -2668,13 +2667,13 @@ int main (void)
                sendbuffer[5] = 18;//recvbuffer[STARTMINUTELO_BYTE];;
                sendbuffer[6] = 19;//recvbuffer[STARTMINUTEHI_BYTE];;
                sendbuffer[15] = 21;
-
+               
                saveSDposition = 0; // erste Messung sind header
                sei();
                
-              // _delay_ms(1000);
+               // _delay_ms(1000);
                uint8_t usberfolg = usb_rawhid_send((void*)sendbuffer, 50);
-
+               
             }break;
                
                // MARK: MESSUNG_STOP
