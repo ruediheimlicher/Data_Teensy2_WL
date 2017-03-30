@@ -1495,7 +1495,7 @@ int main (void)
             lcd_puts("RX");
             
             
-            uint8_t rec = wl_module_get_rx_pw(0);
+            uint8_t rec = wl_module_get_rx_pw(0); //gets the RX payload width
             //lcd_gotoxy(0,3);
             lcd_putc(' ');
             lcd_puthex(rec);
@@ -1572,7 +1572,8 @@ int main (void)
             // OSZIA_HI;
             
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
-            
+            wl_spi_status &= ~(1<<WL_DATA_PENDENT);    // not busy
+
             PTX=0;
          }
          
@@ -1591,6 +1592,7 @@ int main (void)
             {
                lcd_gotoxy(18,1);
                lcd_puts("RT");
+               wl_spi_status &= ~(1<<WL_DATA_PENDENT);    // not busy
                
                wl_module_config_register(STATUS, (1<<MAX_RT)); // Clear Interrupt Bit
                wl_module_CE_hi;
@@ -1662,8 +1664,9 @@ int main (void)
       }
       //OSZI_A_TOGG;
       
-      
-#pragma mark Mess-Intervall
+// **********************************************************
+      #pragma mark Mess-Intervall
+// **********************************************************
       
       if (hoststatus & (1<<MESSUNG_OK)) // Intervall abgelaufen. In ISR gesetzt, Messungen vornehmen
       {
@@ -1714,9 +1717,6 @@ int main (void)
           Digi Eingang
           Digi Eingang
           Digi Eingang
-          
-          
-          
           
           
           */
@@ -1790,6 +1790,7 @@ int main (void)
           #define SAVE_SD_RUN_BIT         1
           #define SAVE_SD_STOP_BIT        2
           */
+         
          if (usbstatus1 & (1<<SAVE_SD_RUN_BIT)) // Daten in mmcbuffer speichern, immer 2 bytes
          {
             //sendbuffer[2] = 23;
@@ -1881,7 +1882,7 @@ int main (void)
             sendbuffer[BLOCKOFFSETLO_BYTE] = blockcounter & 0x00FF;
             sendbuffer[BLOCKOFFSETHI_BYTE] = (blockcounter & 0xFF00)>>8; // Nummer des geschriebenen Blocks hi
             
-         }
+         } //end if usbstatus1 & (1<<SAVE_SD_STOP_BIT)
          else if (! usb_configured()) //b kein USB
          {
             lcd_gotoxy(8,1);
@@ -1914,10 +1915,14 @@ int main (void)
          
          
          // WL write start
-         // MARK: WL write
+         
+// **********************************************************
+// MARK: WL write
+// **********************************************************
          
          //      continue;
          
+         // paket start
          
          wl_module_tx_config(wl_module_TX_NR_1);
          
@@ -1943,100 +1948,107 @@ int main (void)
          payload[10] = adcwert & 0x00FF;
          payload[11] = (adcwert & 0xFF00)>>8;
          
-         
-         wl_module_send(payload,wl_module_PAYLOAD);
-         _delay_ms(1);
-         
-         //lcd_gotoxy(3,3);
-         //lcd_putc('z');
-         // maincounter++;
-         //lcd_gotoxy(10,1);
-         //lcd_puthex(maincounter);
-         if (maincounter >250)
-            
+         if (!(wl_spi_status & (1<<WL_DATA_PENDENT))) // not busy
          {
-            maincounter = 0;
-         }
-         //lcd_putc(' ');
-         //lcd_putc('i');
-         //lcd_puthex(wl_isr_counter);
-         // end WL
-         
-         
-         // Read wl_module status
-         
-         wl_status = wl_module_get_status();
-         
-         //lcd_gotoxy(16,1);
-         //lcd_puthex(wl_status);
-         
-         //lcd_gotoxy(0,2);
-         //lcd_puts("          ");
-         if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
-         {
-            lcd_gotoxy(0,2);
-            lcd_puts("rx+");
             
-            wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
-            delay_ms(5);
-            //          wl_module_rx_config();
             
-            PTX=0;
-         }
-         
-         if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
-         {
-            lcd_gotoxy(0,3);
-            lcd_puts("tx+");
-            delay_ms(5);
             
-            wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
-            delay_ms(5);
+            wl_module_send(payload,wl_module_PAYLOAD);
+            wl_spi_status |= (1<<WL_DATA_PENDENT);    // busy
+            delay_ms(1);
             
-            // heute
-            wl_module_rx_config();
-            //delay_ms(5);
-            maincounter++;
             
-            PTX=0;
-         }
-         else
-         {
-            lcd_gotoxy(0,3);
-            lcd_puts("---");
+            //lcd_gotoxy(3,3);
+            //lcd_putc('z');
+            // maincounter++;
+            //lcd_gotoxy(10,1);
+            //lcd_puthex(maincounter);
+            if (maincounter >250)
+            {
+               maincounter = 0;
+            }
+            //lcd_putc(' ');
+            //lcd_putc('i');
+            //lcd_puthex(wl_isr_counter);
+            // end WL
             
-         }
-         
-         lcd_gotoxy(18,2);
-         lcd_putc(' ');
-         lcd_putc(' ');
-         
-         if (wl_status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
-         {
+            
+            // Read wl_module status
+            
+            wl_status = wl_module_get_status();
+            
+            //lcd_gotoxy(16,1);
+            //lcd_puthex(wl_status);
+            
+            //lcd_gotoxy(0,2);
+            //lcd_puts("          ");
+            if (wl_status & (1<<RX_DR)) // IRQ: Package has been sent
+            {
+               lcd_gotoxy(0,2);
+               lcd_puts("rx+");
+               
+               wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+               delay_ms(5);
+               //          wl_module_rx_config();
+               
+               PTX=0;
+            }
+            
+            if (wl_status & (1<<TX_DS)) // IRQ: Package has been sent
+            {
+               lcd_gotoxy(0,3);
+               lcd_puts("tx+");
+               delay_ms(5);
+               
+               wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
+               delay_ms(5);
+               
+               // heute
+               wl_module_rx_config();
+               //delay_ms(5);
+               maincounter++;
+               
+               PTX=0;
+            }
+            else
+            {
+               lcd_gotoxy(0,3);
+               lcd_puts("---");
+               
+            }
+            
             lcd_gotoxy(18,2);
-            lcd_puts("RT");
+            lcd_putc(' ');
+            lcd_putc(' ');
             
+            if (wl_status & (1<<MAX_RT))							// IRQ: Package has not been sent, send again
+            {
+               lcd_gotoxy(18,2);
+               lcd_puts("RT");
+               
+               
+               wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
+               wl_module_CE_hi;								// Start transmission
+               _delay_us(50);
+               wl_module_CE_lo;
+               
+               wl_module_rx_config();
+               
+            }
+            else
+            {
+               //         lcd_gotoxy(18,2);
+               //        lcd_puts("--");
+               
+            }
             
-            wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
-            wl_module_CE_hi;								// Start transmission
-            _delay_us(50);
-            wl_module_CE_lo;
-            
-         }
-         else
-         {
-            //         lcd_gotoxy(18,2);
-            //        lcd_puts("--");
-            
-         }
-         
-         if (wl_status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
-         {
-            lcd_gotoxy(19,2);
-            lcd_putc('F');
-            
-         }
-         
+            if (wl_status & (1<<TX_FULL))							// IRQ: Package has not been sent, send again
+            {
+               lcd_gotoxy(19,2);
+               lcd_putc('F');
+               
+            }
+         }// if ! WL_DATA_PENDENT
          
          // next pipe
          

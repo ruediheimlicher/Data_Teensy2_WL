@@ -140,7 +140,7 @@ extern void wl_module_rx_config()
 	data[0]=RX_ADDR_P5_DEFAULT_VAL;
 	wl_module_set_rx_addr(data, 1, 5);
     // Set length of incoming payload 
-    wl_module_config_register(RX_PW_P0, wl_module_PAYLOAD);
+   wl_module_config_register(RX_PW_P0, wl_module_PAYLOAD);
 	wl_module_config_register(RX_PW_P1, wl_module_PAYLOAD);
 	wl_module_config_register(RX_PW_P2, wl_module_PAYLOAD);
 	wl_module_config_register(RX_PW_P3, wl_module_PAYLOAD);
@@ -214,6 +214,7 @@ extern void wl_module_tx_config(uint8_t tx_nr)
 	
 	PTX =0;
 	TX_POWERUP;
+   wl_module_CE_hi;     // Listening for pakets
 	/*
     // Start receiver 
     PTX = 0;        // Start in receiving mode
