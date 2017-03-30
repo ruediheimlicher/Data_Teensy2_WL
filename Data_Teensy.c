@@ -256,6 +256,7 @@ volatile uint8_t wl_data[wl_module_PAYLOAD] = {};
 
 volatile uint8_t pipenummer = 0;
 
+volatile uint8_t wl_blockedcounter=0;
 
 #pragma mark mmc def
 FATFS Fat_Fs;		/* FatFs work area needed for each volume */
@@ -1466,12 +1467,12 @@ int main (void)
          wl_spi_status &= ~(1<<WL_ISR_RECV);
          
          
-         lcd_gotoxy(10,0);
-         lcd_puthex(int0counter);
-         lcd_putc(' ');
+         lcd_gotoxy(8,0);
+         //lcd_puthex(int0counter);
+         lcd_putc('i');
          lcd_puthex(wl_isr_counter);
          
-         lcd_gotoxy(18,1);
+         //lcd_gotoxy(18,1);
          
          wl_status = wl_module_get_status();
          
@@ -1494,26 +1495,27 @@ int main (void)
             lcd_gotoxy(0,2);
             lcd_puts("RX");
             
-            
-            uint8_t rec = wl_module_get_rx_pw(0); //gets the RX payload width
-            //lcd_gotoxy(0,3);
-            lcd_putc(' ');
-            lcd_puthex(rec);
-            //lcd_putc(' ');
-            
             pipenummer = wl_module_get_rx_pipe();
             lcd_gotoxy(6,2);
             lcd_putc('p');
             lcd_puthex(pipenummer);
+            
+            uint8_t rec = wl_module_get_rx_pw(pipenummer); //gets the RX payload width
+            //lcd_gotoxy(0,3);
+            lcd_putc(' ');
+            lcd_putc('r');
+            lcd_puthex(rec);
+            //lcd_putc(' ');
+            
             
             uint8_t readstatus = wl_module_get_data((void*)&wl_data);
             uint8_t i;
             //lcd_puthex(readstatus);
             //lcd_putc(' ');
             //lcd_gotoxy(0,3);
-            lcd_gotoxy(12,2);
+            lcd_gotoxy(14,2);
             lcd_putc('p');
-            lcd_puthex(wl_data[9]);
+            lcd_puthex(wl_data[9]); // pipe aus data
             
             /*
              Kontrolle: e von modul
@@ -1564,16 +1566,17 @@ int main (void)
             
             uint16_t temperatur1 = (wl_data[13]<<8);
             temperatur1 |= wl_data[12];
-            lcd_gotoxy(6,1);
-            lcd_putint12(temperatur1);
+            lcd_gotoxy(8,1);
+            lcd_putint(temperatur1);
             
             
             
             // OSZIA_HI;
             
             wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            
             wl_spi_status &= ~(1<<WL_DATA_PENDENT);    // not busy
-
+            
             PTX=0;
          }
          
@@ -1586,8 +1589,8 @@ int main (void)
             PTX=0;
             OSZIA_HI;
          }
-         else
-            
+//         else
+         {
             if (wl_status & (1<<MAX_RT)) // IRQ: Package has not been sent, send again
             {
                lcd_gotoxy(18,1);
@@ -1598,6 +1601,7 @@ int main (void)
                wl_module_CE_hi;
                _delay_us(15);
                wl_module_CE_lo;
+               wl_spi_status &= ~(1<<WL_DATA_PENDENT);    // not busy
             }
             else
             {
@@ -1605,11 +1609,15 @@ int main (void)
                lcd_puts("--");
                
             }
-         
+         }
          
          //    wl_spi_status = 0;
       } // end ISR abarbeiten (wl_spi_status & (1<<7))
-      
+      else
+      {
+         
+//         wl_spi_status &= ~(1<<WL_DATA_PENDENT);    // not busy
+      }
       // ********
       
       
@@ -1746,9 +1754,8 @@ int main (void)
          //lcd_clr_line(2);
          
          lcd_gotoxy(4,0);
-         lcd_putint(messungcounter);
-         lcd_putc(' ');
-         
+         lcd_putc('m');
+         lcd_puthex(messungcounter);
          
          uint16_t adcwert = adc_read(0);
          
@@ -1948,12 +1955,26 @@ int main (void)
          payload[10] = adcwert & 0x00FF;
          payload[11] = (adcwert & 0xFF00)>>8;
          
-         if (!(wl_spi_status & (1<<WL_DATA_PENDENT))) // not busy
+         lcd_gotoxy(6,3);
+         lcd_puts("pend");
+         lcd_puthex(wl_spi_status);
+         lcd_putc(' ');
+         lcd_puthex(wl_blockedcounter);
+         
+         if ((wl_spi_status & (1<<WL_DATA_PENDENT))) //  busy
          {
-            
-            
-            
+            //wl_module_config_register(STATUS, (1<<RX_DR)); //Clear Interrupt Bit
+            wl_blockedcounter++;
+            if (wl_blockedcounter > 0x10)
+            {
+               wl_spi_status &= ~(1<<WL_DATA_PENDENT);
+            }
+         }
+         else
+         {
+            wl_blockedcounter=0;
             wl_module_send(payload,wl_module_PAYLOAD);
+            
             wl_spi_status |= (1<<WL_DATA_PENDENT);    // busy
             delay_ms(1);
             
