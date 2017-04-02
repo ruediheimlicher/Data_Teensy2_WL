@@ -1948,13 +1948,15 @@ int main (void)
          payload[10] = adcwert & 0x00FF;
          payload[11] = (adcwert & 0xFF00)>>8;
          
-         if (!(wl_spi_status & (1<<WL_DATA_PENDENT))) // not busy
+         if ((wl_spi_status & (1<<WL_DATA_PENDENT))) // not busy
          {
             
-            
-            
+         }
+         else
+         
+            {
             wl_module_send(payload,wl_module_PAYLOAD);
-            wl_spi_status |= (1<<WL_DATA_PENDENT);    // busy
+            //wl_spi_status |= (1<<WL_DATA_PENDENT);    // busy
             delay_ms(1);
             
             
@@ -2026,7 +2028,7 @@ int main (void)
                lcd_gotoxy(18,2);
                lcd_puts("RT");
                
-               
+               wl_module_config_register(STATUS, (1<<TX_DS)); //Clear Interrupt Bit
                wl_module_config_register(STATUS, (1<<MAX_RT));	// Clear Interrupt Bit
                wl_module_CE_hi;								// Start transmission
                _delay_us(50);
